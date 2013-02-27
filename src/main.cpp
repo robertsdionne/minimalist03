@@ -2,15 +2,12 @@
 #include "testApp.h"
 #include "ofAppGlutWindow.h"
 
-//========================================================================
-int main( ){
+constexpr unsigned int kWidth = 1920;
+constexpr unsigned int kHeight = 1200;
 
-    ofAppGlutWindow window;
-	ofSetupOpenGL(&window, 1024,768, OF_WINDOW);			// <-------- setup the GL context
-
-	// this kicks off the running of my app
-	// can be OF_WINDOW or OF_FULLSCREEN
-	// pass in width and height too:
-	ofRunApp( new testApp());
-
+int main(const int argument_count, const char **arguments) {
+  ofAppGlutWindow window;
+  ofSetupOpenGL(&window, kWidth, kHeight, OF_FULLSCREEN);
+  ofRunApp(new testApp());
+  return 0;
 }

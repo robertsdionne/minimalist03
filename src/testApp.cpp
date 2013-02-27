@@ -3,7 +3,6 @@
 
 constexpr unsigned int testApp::kNumGameObjects;
 
-//--------------------------------------------------------------
 void testApp::setup() {
   ofEnableSmoothing();
   mouse_position = ofVec2f(ofGetWidth() / 2, ofGetHeight() / 2);
@@ -17,7 +16,6 @@ void testApp::setup() {
   }
 }
 
-//--------------------------------------------------------------
 void testApp::update() {
   RemoveDeadIndividuals(critters);
   RemoveDeadIndividuals(enemy_critters);
@@ -147,7 +145,6 @@ void testApp::RemoveDeadIndividuals(std::list<Critter *> &group) {
   });
 }
 
-//--------------------------------------------------------------
 void testApp::draw() {
   ofBackground(0.0, 0.0, 0.0);
   DrawGroup(critters);
@@ -165,7 +162,6 @@ void testApp::DrawGroup(std::list<Critter *> &group) {
   }
 }
 
-//--------------------------------------------------------------
 void testApp::keyPressed(int key) {
   switch (key) {
     case 'w':
@@ -187,7 +183,6 @@ void testApp::keyPressed(int key) {
   }
 }
 
-//--------------------------------------------------------------
 void testApp::keyReleased(int key) {
   switch (key) {
     case 'w':
@@ -206,12 +201,10 @@ void testApp::keyReleased(int key) {
   }
 }
 
-//--------------------------------------------------------------
 void testApp::mouseMoved(int x, int y) {
   mouse_position = ofVec2f(x, y);
 }
 
-//--------------------------------------------------------------
 void testApp::mouseDragged(int x, int y, int button) {
   std::for_each(critters.begin(), critters.end(), [this, x, y] (Critter *const individual) {
     const ofVec2f r = individual->position - ofVec2f(x, y);
@@ -239,7 +232,6 @@ void testApp::mouseDragged(int x, int y, int button) {
   });
 }
 
-//--------------------------------------------------------------
 void testApp::mousePressed(int x, int y, int button) {
   mouse_down = true;
   mouseDragged(x, y, button);
@@ -255,22 +247,18 @@ void testApp::SteerGroup(std::list<Critter *> &group, ofVec2f target) {
   });
 }
 
-//--------------------------------------------------------------
 void testApp::mouseReleased(int x, int y, int button) {
   mouse_down = false;
 }
 
-//--------------------------------------------------------------
 void testApp::windowResized(int width, int height) {
 
 }
 
-//--------------------------------------------------------------
 void testApp::gotMessage(ofMessage msg) {
 
 }
 
-//--------------------------------------------------------------
 void testApp::dragEvent(ofDragInfo dragInfo) { 
 
 }
