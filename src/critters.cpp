@@ -193,10 +193,14 @@ void Critters::CollideVirii(std::list<Critter *> &group, std::list<Virus *> &vir
       const ofVec2f r = virus->position - individual->position;
       const float actual_distance = r.length();
       const float colliding_distance = individual->radius() + virus->radius();
-      if (actual_distance < colliding_distance
-          && ofRandomuf() < Virus::kInfectionRate * individual->age * individual->age * individual->age - individual->immunity) {
-        individual->infection += virus->area / Virus::kAreaToVirus;
-        virus->area = 0;
+      if (actual_distance < colliding_distance) {
+        if (ofRandomuf() < Virus::kInfectionRate * individual->age * individual->age * individual->age - individual->immunity) {
+          individual->infection += virus->area / Virus::kAreaToVirus;
+          virus->area = 0;
+        }
+        if (ofRandomuf() < Virus::kInfectionRate * individual->immunity) {
+          virus->area = 0;
+        }
       }
     });
   });
