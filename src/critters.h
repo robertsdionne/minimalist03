@@ -64,7 +64,8 @@ private:
   void Wrap(ofVec2f &position);
   
 private:
-  static const unsigned int kNumGameObjects = 50;
+  static constexpr unsigned int kNumGameObjects = 50;
+  static constexpr float kOverlap = 0.5;
   
   std::list<Critter *> critters;
   std::list<Critter *> enemy_critters;

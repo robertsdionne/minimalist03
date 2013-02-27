@@ -12,13 +12,14 @@
 #include <list>
 #include <set>
 
+#include "gameobject.h"
 #include "ofMain.h"
 
-class Critter {
+class Critter : public GameObject {
 public:
-  Critter(bool player, float mass, float size, float food, float orientation, ofVec2f position, ofVec2f velocity);
+  Critter(bool player, float food, float mass = kMass, float radius = kRadius, ofVec2f position = ofVec2f(), ofVec2f velocity = ofVec2f());
   
-  virtual ~Critter();
+  virtual ~Critter() {}
   
   virtual ofColor membrane_color() const;
   virtual ofColor wall_cell_color() const;
@@ -43,14 +44,8 @@ public:
   std::set<Critter *> connected;
   float parity;
   float food;
-  float mass;
-  float size;
   float age;
   float poison;
-  float orientation;
-  ofVec2f position;
-  ofVec2f velocity;
-  ofVec2f force;
   
   static constexpr float kAgeRate = 0.0005;
   static constexpr float kBreederSize = 10.0;
