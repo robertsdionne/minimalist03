@@ -7,6 +7,7 @@
 //
 
 #include "gameobject.h"
+#include "ofMain.h"
 
 GameObject::GameObject(float mass, float radius, ofVec2f position, ofVec2f velocity)
 : mass(mass), radius(radius), position(position), previous_position(position - velocity / kFrameRate) {}

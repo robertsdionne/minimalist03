@@ -9,7 +9,6 @@
 #ifndef __minimalist01__critter__
 #define __minimalist01__critter__
 
-#include <iostream>
 #include <list>
 #include <set>
 

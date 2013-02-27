@@ -191,13 +191,13 @@
 		E4B69E1C0A3A1BDC003C02F2 /* src */ = {
 			isa = PBXGroup;
 			children = (
-				46DA424B16DDA3D700123468 /* gameobject.cpp */,
-				46DA424C16DDA3D700123468 /* gameobject.h */,
 				4688C4E616CB278F000EFA6E /* critter.cpp */,
 				4688C4E716CB278F000EFA6E /* critter.h */,
-				E4B69E1D0A3A1BDC003C02F2 /* main.cpp */,
 				E4B69E1E0A3A1BDC003C02F2 /* critters.cpp */,
 				E4B69E1F0A3A1BDC003C02F2 /* critters.h */,
+				46DA424B16DDA3D700123468 /* gameobject.cpp */,
+				46DA424C16DDA3D700123468 /* gameobject.h */,
+				E4B69E1D0A3A1BDC003C02F2 /* main.cpp */,
 			);
 			path = src;
 			sourceTree = SOURCE_ROOT;

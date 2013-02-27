@@ -1,5 +1,5 @@
 #include "critter.h"
-#include "Critters.h"
+#include "critters.h"
 
 constexpr unsigned int Critters::kNumGameObjects;
 

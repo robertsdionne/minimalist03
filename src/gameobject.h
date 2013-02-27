@@ -9,7 +9,6 @@
 #ifndef __minimalist01__gameobject__
 #define __minimalist01__gameobject__
 
-#include <iostream>
 #include "ofMain.h"
 
 class GameObject {
