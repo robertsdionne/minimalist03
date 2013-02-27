@@ -13,14 +13,18 @@
 
 class GameObject {
 public:
+  static constexpr float kArea = M_PI * 100.0;
   static constexpr float kDeltaTime = 1.0 / 60.0;
   static constexpr float kFrameRate = 60.0;
   static constexpr float kMass = 1.0;
-  static constexpr float kRadius = 10.0;
   
-  GameObject(float mass = kMass, float radius = kRadius, ofVec2f position = ofVec2f(), ofVec2f velocity = ofVec2f());
+  GameObject(float mass = kMass, float area = kArea, ofVec2f position = ofVec2f(), ofVec2f velocity = ofVec2f());
   
   virtual ~GameObject() {}
+  
+  float density() const;
+  
+  float radius() const;
   
   ofVec2f velocity() const;
   
@@ -29,7 +33,7 @@ public:
   void Inertia();
   
   float mass;
-  float radius;
+  float area;
   ofVec2f position;
   ofVec2f previous_position;
   ofVec2f force;

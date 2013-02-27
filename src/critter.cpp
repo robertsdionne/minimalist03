@@ -26,8 +26,8 @@ constexpr float Critter::kGrowthRate;
 constexpr float Critter::kLineWidthScaleFactor;
 constexpr float Critter::kMaxComponentOfVelocity;
 
-Critter::Critter(bool player, float food, float mass, float radius, ofVec2f position, ofVec2f velocity)
-: GameObject(mass, radius, position, velocity), player(player), neighbors(), food(food), poison(0), age(0), parity(ofRandomuf() < 0.5 ? -1.0 : 1.0) {}
+Critter::Critter(bool player, float food, float mass, float area, ofVec2f position, ofVec2f velocity)
+: GameObject(mass, area, position, velocity), player(player), neighbors(), food(food), poison(0), age(0), parity(ofRandomuf() < 0.5 ? -1.0 : 1.0) {}
 
 ofColor Critter::membrane_color() const {
   if (player) {
@@ -79,11 +79,12 @@ void Critter::Draw() {
   ofPopStyle();
   ofPushMatrix();
   ofTranslate(position);
-  ofScale(radius, radius);
+  ofScale(radius(), radius());
   ofPushStyle();
   if (food > 0) {
     ofEnableAlphaBlending();
-    ofSetColor(interior_cell_color().getLerped(wall_cell_color(), (radius - 10) / 10.0), 255 * food);
+    ofColor interior = interior_cell_color().getLerped(wall_cell_color(), (radius() - 10) / 10.0);
+    ofSetColor(interior, 255 * food);
     ofFill();
     ofSetLineWidth(0);
     DrawInternal();
@@ -91,25 +92,25 @@ void Critter::Draw() {
   }
   ofColor membrane = membrane_color();
   membrane.setSaturation(255 * (1-age * age * age));
-  ofSetColor(membrane / (21.0 / radius));
+  ofSetColor(membrane / (21.0 / radius()));
   ofNoFill();
-  ofSetLineWidth(radius * kLineWidthScaleFactor);
+  ofSetLineWidth(area * kLineWidthScaleFactor);
   DrawInternal();
   ofPopStyle();
   ofPopMatrix();
 }
 
 void Critter::MaybeReproduce(std::list<Critter *> &group) {
-  if (radius <= kBreederSize && food >= 0.5 && ofRandomuf() < reproductivity() && group.size() < kMaxPopulation) {
-    radius *= kChildScaleFactor;
+  if (radius() <= kBreederSize && food >= 0.5 && ofRandomuf() < reproductivity() && group.size() < kMaxPopulation) {
+    area *= kChildScaleFactor;
     food -= 0.5;
     age = 0;
     const ofVec2f epsilon = ofVec2f(0.1, 0.1);
-    group.push_back(new Critter(player, 0, mass, radius, position + epsilon, velocity()));
+    group.push_back(new Critter(player, 0, mass, area, position + epsilon, velocity()));
   }
-  const float cell_mortality = radius <= kBreederSize ? mortality() : kWallMortality;
+  const float cell_mortality = radius() <= kBreederSize ? mortality() : kWallMortality;
   if (ofRandomuf() < cell_mortality * age * age * age) {
-    radius = 0;
+    area = 0;
   }
 }
 
@@ -123,19 +124,19 @@ void Critter::UpdateInternal(float dt) {
   std::for_each(connected.begin(), connected.end(), [&] (Critter *const neighbor) {
     const ofVec2f r = position - neighbor->position;
     const float actual_distance = r.length();
-    const float colliding_distance = radius + neighbor->radius;
-    if ((radius > 12.0 && neighbor->radius > 12.0 && actual_distance > colliding_distance * 8.0)
+    const float colliding_distance = radius() + neighbor->radius();
+    if ((radius() > 12.0 && neighbor->radius() > 12.0 && actual_distance > colliding_distance * 8.0)
         || actual_distance > colliding_distance * 1.3) {
       connected.erase(neighbor);
     }
   });
   std::for_each(neighbors.begin(), neighbors.end(), [&] (Critter *const neighbor) {
-    if ((parity == neighbor->parity && connected.size() < 2) || (radius > 12.0 && neighbor->radius > 12.0)) {
+    if ((parity == neighbor->parity && connected.size() < 2) || (radius() > 12.0 && neighbor->radius() > 12.0)) {
       connected.insert(neighbor);
     }
   });
-  if (radius < kBreederSize - kGrowthRate) {
-    radius += kGrowthRate * ofRandomuf();
+  if (radius() < kBreederSize - kGrowthRate) {
+    area += kGrowthRate * ofRandomuf();
   }
   if (age <= 1.0 - kAgeRate) {
     age += kAgeRate * ofRandomuf();

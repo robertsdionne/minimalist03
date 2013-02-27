@@ -4,6 +4,7 @@
 constexpr unsigned int Critters::kNumGameObjects;
 
 void Critters::setup() {
+  ofSetFrameRate(60.0);
   ofEnableSmoothing();
   mouse_position = ofVec2f(ofGetWidth() / 2, ofGetHeight() / 2);
   reproduce_type = 0;
@@ -50,8 +51,8 @@ ofVec2f Critters::FindCenterOfMass(std::list<Critter *> &group) {
   ofVec2f center_of_mass;
   float total_mass;
   std::for_each(group.begin(), group.end(), [&center_of_mass, &total_mass] (Critter *const individual) {
-    center_of_mass += individual->radius * individual->position;
-    total_mass += individual->radius;
+    center_of_mass += individual->mass * individual->position;
+    total_mass += individual->mass;
   });
   center_of_mass /= total_mass;
   return center_of_mass;
@@ -102,7 +103,7 @@ void Critters::Collide(std::list<Critter *> &group, Statistics &statistics) {
       if (individual0 != individual1) {
         const ofVec2f r = individual1->position - individual0->position;
         const float actual_distance = r.length();
-        const float colliding_distance = individual0->radius + individual1->radius;
+        const float colliding_distance = individual0->radius() + individual1->radius();
         if (actual_distance < colliding_distance) {
           overlapping.push_back(individual1);
           const float overlap = colliding_distance - actual_distance;
@@ -114,14 +115,14 @@ void Critters::Collide(std::list<Critter *> &group, Statistics &statistics) {
         }
       }
     });
-    const float size_diffusion_amount = 0.01 * overlapping.size();
+    const float size_diffusion_amount = overlapping.size();
     const float food_diffusion_amount = 0.01;
     individual0->neighbors = overlapping;
     std::for_each(overlapping.begin(), overlapping.end(), [&] (Critter *const individual1) {
-      if (ofRandomuf() < 0.1 && individual0->radius > Critter::kMinSize
-          && individual1->radius < Critter::kMaxSize) {
-        individual0->radius -= size_diffusion_amount;
-        individual1->radius += size_diffusion_amount;
+      if (ofRandomuf() < 0.1 && individual0->radius() > Critter::kMinSize
+          && individual1->radius() < Critter::kMaxSize) {
+        individual0->area -= size_diffusion_amount;
+        individual1->area += size_diffusion_amount;
       }
       if (ofRandomuf() < individual0->food && individual0->food > 0 && individual1->food < 1) {
         individual0->food -= food_diffusion_amount;
@@ -136,7 +137,7 @@ void Critters::Collide(std::list<Critter *> &group, Statistics &statistics) {
 
 void Critters::RemoveDeadIndividuals(std::list<Critter *> &group) {
   group.remove_if([] (const Critter *const individual) -> bool {
-    if (individual->radius <= 0) {
+    if (individual->area <= 0) {
       delete individual;
       return true;
     } else {
@@ -152,7 +153,7 @@ void Critters::draw() {
   ofCircle(enemy_target, 2);
   ofCircle(enemy_center_of_mass, 5);
   std::stringstream overlap;
-  overlap << critters.size() << std::endl << enemy_critters.size();
+  overlap << critters.size() << std::endl << enemy_critters.size() << std::endl << ofGetFrameRate();
   ofDrawBitmapString(overlap.str(), 10, 10);
 }
 
@@ -209,10 +210,10 @@ void Critters::mouseDragged(int x, int y, int button) {
   std::for_each(critters.begin(), critters.end(), [this, x, y] (Critter *const individual) {
     const ofVec2f r = individual->position - ofVec2f(x, y);
     const float actual_distance = r.length();
-    const float colliding_distance = individual->radius;
+    const float colliding_distance = individual->radius();
     if (actual_distance < colliding_distance) {
       if (shift_key_down) {
-        individual->radius = 0;
+        individual->area = 0;
       } else if (statistics.food.total < critters.size()) {
         individual->food += 10;
       }
@@ -221,10 +222,10 @@ void Critters::mouseDragged(int x, int y, int button) {
   std::for_each(enemy_critters.begin(), enemy_critters.end(), [this, x, y] (Critter *const individual) {
     const ofVec2f r = individual->position - ofVec2f(x, y);
     const float actual_distance = r.length();
-    const float colliding_distance = individual->radius;
+    const float colliding_distance = individual->radius();
     if (actual_distance < colliding_distance) {
       if (shift_key_down) {
-        individual->radius = 0;
+        individual->area = 0;
       } else if (enemy_statistics.food.total < enemy_critters.size()) {
         individual->food += 10;
       }
@@ -240,8 +241,8 @@ void Critters::mousePressed(int x, int y, int button) {
 void Critters::SteerGroup(std::list<Critter *> &group, ofVec2f target) {
   std::for_each(group.begin(), group.end(), [target] (Critter *const individual) {
     ofVec2f desired_velocity = target - individual->position;
-    desired_velocity.scale(600.0);
-    individual->force += desired_velocity - individual->velocity();
+    desired_velocity.scale(100.0);
+    individual->force += (desired_velocity - individual->velocity());
   });
 }
 
@@ -263,8 +264,7 @@ void Critters::dragEvent(ofDragInfo dragInfo) {
 
 void Critters::CreateShape(std::list<Critter *> &group, bool player, ofVec2f at) {
   constexpr float mass = 1.0;
-  const float radius = 10;
   const float orientation = 2.0 * M_PI * ofRandomuf();
   const ofVec2f velocity = ofVec2f();
-  group.push_back(new Critter(player, 0.0, mass, radius, at, velocity));
+  group.push_back(new Critter(player, 0.0, mass, GameObject::kArea, at, velocity));
 }

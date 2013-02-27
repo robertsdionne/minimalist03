@@ -17,7 +17,7 @@
 
 class Critter : public GameObject {
 public:
-  Critter(bool player, float food, float mass = kMass, float radius = kRadius, ofVec2f position = ofVec2f(), ofVec2f velocity = ofVec2f());
+  Critter(bool player, float food, float mass = kMass, float area = kArea, ofVec2f position = ofVec2f(), ofVec2f velocity = ofVec2f());
   
   virtual ~Critter() {}
   
@@ -51,18 +51,18 @@ public:
   static constexpr float kBreederSize = 10.0;
   static constexpr float kChildScaleFactor = 0.8;
   static constexpr float kDrag = 0.9;
-  static constexpr float kGrowthRate = 0.005;
+  static constexpr float kGrowthRate = 0.05;
   static const ofColor kInteriorCellColor;
-  static constexpr float kLineWidthScaleFactor = 0.25;
+  static constexpr float kLineWidthScaleFactor = 0.004;
   static constexpr float kMaxComponentOfVelocity = 10.0;
   static constexpr unsigned int kMaxPopulation = 200;
   static constexpr float kMaxSize = 20.0;
   static const ofColor kMembraneColor;
   static constexpr float kMinSize = 2.0;
-  static constexpr float kMortality = 0.002;
+  static constexpr float kMortality = 0.0001;
   static constexpr float kReproductivity = 0.001;
   static const ofColor kWallCellColor;
-  static constexpr float kWallMortality = 0.00001;
+  static constexpr float kWallMortality = 0.00002;
 };
 
 #endif /* defined(__minimalist01__critter__) */

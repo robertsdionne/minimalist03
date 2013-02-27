@@ -9,8 +9,16 @@
 #include "gameobject.h"
 #include "ofMain.h"
 
-GameObject::GameObject(float mass, float radius, ofVec2f position, ofVec2f velocity)
-: mass(mass), radius(radius), position(position), previous_position(position - velocity / kFrameRate) {}
+GameObject::GameObject(float mass, float area, ofVec2f position, ofVec2f velocity)
+: mass(mass), area(area), position(position), previous_position(position - velocity / kFrameRate) {}
+
+float GameObject::density() const {
+  return mass / area;
+}
+
+float GameObject::radius() const {
+  return sqrt(area / M_PI);
+}
 
 ofVec2f GameObject::velocity() const {
   return (position - previous_position) * kFrameRate;
