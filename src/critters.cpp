@@ -15,14 +15,17 @@ void Critters::setup() {
   for (unsigned int i = 0; i < kNumGameObjects; ++i) {
     CreateShape(enemy_critters, false, ofVec2f(ofRandomWidth(), ofRandomHeight()));
   }
+  debug = false;
 }
 
 void Critters::update() {
   RemoveDeadIndividuals(critters);
   RemoveDeadIndividuals(enemy_critters);
   UpdateGroup(critters, statistics, mouse_position, statistics.overlap.mean < kOverlap, true);
-  enemy_target_angle += ofSignedNoise(ofGetElapsedTimef() / 5.0) * 0.05;
-  const float radius = ofGetHeight() / 3.0;
+  if (ofGetFrameNum() % 10 == 0) {
+    enemy_target_angle += ofSignedNoise(ofGetElapsedTimef() / 2.0);
+  }
+  const float radius = ofGetHeight() / 4.0;
   enemy_center_of_mass = FindCenterOfMass(enemy_critters);
   enemy_target = ofVec2f(radius * cos(enemy_target_angle), radius * sin(enemy_target_angle)) + enemy_center_of_mass;
   Wrap(enemy_target);
@@ -150,11 +153,13 @@ void Critters::draw() {
   ofBackground(0.0, 0.0, 0.0);
   DrawGroup(critters);
   DrawGroup(enemy_critters);
-  ofCircle(enemy_target, 2);
-  ofCircle(enemy_center_of_mass, 5);
-  std::stringstream overlap;
-  overlap << critters.size() << std::endl << enemy_critters.size() << std::endl << ofGetFrameRate();
-  ofDrawBitmapString(overlap.str(), 10, 10);
+  if (debug) {
+    ofCircle(enemy_target, 2);
+    ofCircle(enemy_center_of_mass, 5);
+    std::stringstream overlap;
+    overlap << critters.size() << std::endl << enemy_critters.size() << std::endl << ofGetFrameRate();
+    ofDrawBitmapString(overlap.str(), 10, 10);
+  }
 }
 
 void Critters::DrawGroup(std::list<Critter *> &group) {

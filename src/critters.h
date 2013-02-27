@@ -80,6 +80,7 @@ private:
   Statistics enemy_statistics;
   
   bool mouse_down;
+  bool debug;
   bool old_circle_key_down;
   bool circle_key_down;
   bool shift_key_down;
