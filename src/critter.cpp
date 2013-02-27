@@ -10,7 +10,7 @@
 
 #include "critter.h"
 #include "ofMain.h"
-
+#include "virus.h"
 
 const ofColor Critter::kMembraneColor = ofColor(255.0, 102.0, 102.0);
 const ofColor Critter::kWallCellColor = ofColor(0.0, 0.0, 255.0);
@@ -27,7 +27,7 @@ constexpr float Critter::kLineWidthScaleFactor;
 constexpr float Critter::kMaxComponentOfVelocity;
 
 Critter::Critter(bool player, float food, float mass, float area, ofVec2f position, ofVec2f velocity)
-: GameObject(mass, area, position, velocity), player(player), neighbors(), food(food), poison(0), age(0), parity(ofRandomuf() < 0.5 ? -1.0 : 1.0) {}
+: GameObject(mass, area, position, velocity), player(player), neighbors(), food(food), infection(0), age(0), parity(ofRandomuf() < 0.5 ? -1.0 : 1.0) {}
 
 ofColor Critter::membrane_color() const {
   if (player) {
@@ -98,19 +98,43 @@ void Critter::Draw() const {
   DrawInternal();
   ofPopStyle();
   ofPopMatrix();
+  ofPushMatrix();
+  ofPushStyle();
+  ofTranslate(position);
+  if (infection > 0) {
+    Virus virus;
+    virus.area = infection * Virus::kAreaToVirus;
+    ofSetColor(ofColor::white);
+    ofFill();
+    ofCircle(0, 0, virus.radius());
+  }
+  ofPopStyle();
+  ofPopMatrix();
 }
 
-void Critter::MaybeReproduce(std::list<Critter *> &group) {
+void Critter::MaybeReproduce(std::list<Critter *> &group, std::list<Virus *> &virii) {
   if (radius() <= kBreederSize && food >= 0.5 && ofRandomuf() < reproductivity() && group.size() < kMaxPopulation) {
     area *= kChildScaleFactor;
     food -= 0.5;
     age = 0;
+    infection /= 2.0;
     const ofVec2f epsilon = ofVec2f(0.1, 0.1);
-    group.push_back(new Critter(player, 0, mass, area, position + epsilon, velocity()));
+    Critter *critter = new Critter(player, 0, mass, area, position + epsilon, velocity());
+    critter->infection = infection;
+    group.push_back(critter);
   }
   const float cell_mortality = radius() <= kBreederSize ? mortality() : kWallMortality;
   if (ofRandomuf() < cell_mortality * age * age * age) {
     area = 0;
+  }
+  if (area <= infection * Virus::kAreaToVirus) {
+    area = 0;
+    for (int i = 0; i < infection; ++i) {
+      Virus *virus = new Virus();
+      virus->position = position;
+      virus->previous_position = previous_position;
+      virii.push_back(virus);
+    }
   }
 }
 
@@ -131,7 +155,7 @@ void Critter::UpdateInternal(float dt) {
     }
   });
   std::for_each(neighbors.begin(), neighbors.end(), [&] (Critter *const neighbor) {
-    if ((parity == neighbor->parity && connected.size() < 2) || (radius() > 12.0 && neighbor->radius() > 12.0)) {
+    if ((parity == neighbor->parity && connected.size() < 2) || (radius() > 12.0)) {
       connected.insert(neighbor);
     }
   });
@@ -140,6 +164,9 @@ void Critter::UpdateInternal(float dt) {
   }
   if (age <= 1.0 - kAgeRate) {
     age += kAgeRate * ofRandomuf();
+  }
+  if (infection >= 1.0 && ofRandomuf() < Virus::kGrowthRate) {
+    infection += 1;
   }
   force += -kDrag * velocity();
 }

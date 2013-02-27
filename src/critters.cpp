@@ -1,8 +1,9 @@
 #include "critter.h"
 #include "critters.h"
 #include "food.h"
+#include "virus.h"
 
-constexpr unsigned int Critters::kNumGameObjects;
+constexpr unsigned int Critters::kNumCritters;
 
 void Critters::setup() {
   ofSetFrameRate(60.0);
@@ -10,20 +11,20 @@ void Critters::setup() {
   mouse_position = ofVec2f(ofGetWidth() / 2, ofGetHeight() / 2);
   reproduce_type = 0;
   enemy_target_angle = 0;
-  for (unsigned int i = 0; i < kNumGameObjects; ++i) {
+  for (unsigned int i = 0; i < kNumCritters; ++i) {
     CreateShape(critters, true, ofVec2f(ofRandomWidth(), ofRandomHeight()));
     CreateShape(enemy_critters, false, ofVec2f(ofRandomWidth(), ofRandomHeight()));
   }
   for (unsigned int i = 0; i < kNumFood; ++i) {
     food.push_back(new Food());
   }
+  for (unsigned int i = 0; i < kNumVirii; ++i) {
+    virii.push_back(new Virus());
+  }
   debug = false;
 }
 
 void Critters::update() {
-  RemoveDeadFood(food);
-  RemoveDeadIndividuals(critters);
-  RemoveDeadIndividuals(enemy_critters);
   UpdateGroup(critters, statistics, mouse_position, statistics.overlap.mean < kOverlap, true);
   enemy_target_angle += ofSignedNoise(ofGetElapsedTimef() / 5.0) * 0.05;
   const float radius = ofGetHeight() / 3.0;
@@ -31,7 +32,14 @@ void Critters::update() {
   enemy_target = ofVec2f(radius * cos(enemy_target_angle), radius * sin(enemy_target_angle)) + enemy_center_of_mass;
   Wrap(enemy_target);
   UpdateFood(food);
+  UpdateVirii(virii);
   UpdateGroup(enemy_critters, enemy_statistics, enemy_target, enemy_statistics.overlap.mean < kOverlap, false);
+  RemoveDeadFood(food);
+  RemoveDeadVirii(virii);
+  RemoveDeadIndividuals(critters);
+  RemoveDeadIndividuals(enemy_critters);
+  CollideVirii(critters, virii);
+  CollideVirii(enemy_critters, virii);
   CollideFood(critters, food);
   CollideFood(enemy_critters, food);
   if (keys['`'] && !previous_keys['`']) {
@@ -53,13 +61,19 @@ void Critters::UpdateGroup(std::list<Critter *> &group, Statistics &statistics, 
     if (individual->food >= 0.0001) {
       individual->food -= 0.0001;
     }
-    individual->MaybeReproduce(group);
+    individual->MaybeReproduce(group, virii);
   }
 }
 
 void Critters::UpdateFood(std::list<Food *> &group) {
   for (auto mote : group) {
     mote->Update(1.0 / ofGetFrameRate());
+  }
+}
+
+void Critters::UpdateVirii(std::list<Virus *> &group) {
+  for (auto virus : group) {
+    virus->Update(1.0 / ofGetFrameRate());
   }
 }
 
@@ -133,6 +147,7 @@ void Critters::Collide(std::list<Critter *> &group, Statistics &statistics) {
     });
     const float size_diffusion_amount = overlapping.size();
     const float food_diffusion_amount = 0.01;
+    const float virus_diffusion_amount = 1.0;
     individual0->neighbors = overlapping;
     std::for_each(overlapping.begin(), overlapping.end(), [&] (Critter *const individual1) {
       if (ofRandomuf() < 0.1 && individual0->radius() > Critter::kMinSize
@@ -143,6 +158,12 @@ void Critters::Collide(std::list<Critter *> &group, Statistics &statistics) {
       if (ofRandomuf() < individual0->food && individual0->food > 0 && individual1->food < 1) {
         individual0->food -= food_diffusion_amount;
         individual1->food += food_diffusion_amount;
+      }
+    });
+    std::for_each(individual0->connected.begin(), individual0->connected.end(), [&] (Critter *const individual1) {
+      if (ofRandomuf() < Virus::kInfectionRate && individual0->infection && individual0->infection >= 2) {
+        individual0->infection -= virus_diffusion_amount;
+        individual1->infection += virus_diffusion_amount;
       }
     });
     statistics.food.total += individual0->food;
@@ -160,6 +181,20 @@ void Critters::CollideFood(std::list<Critter *> &group, std::list<Food *> &food)
       if (actual_distance < colliding_distance) {
         individual->food += food->area / Food::kAreaToFood;
         food->area = 0;
+      }
+    });
+  });
+}
+
+void Critters::CollideVirii(std::list<Critter *> &group, std::list<Virus *> &virii) {
+  std::for_each(group.begin(), group.end(), [&] (Critter *const individual) {
+    std::for_each(virii.begin(), virii.end(), [&] (Virus *const virus) {
+      const ofVec2f r = virus->position - individual->position;
+      const float actual_distance = r.length();
+      const float colliding_distance = individual->radius() + virus->radius();
+      if (actual_distance < colliding_distance) {
+        individual->infection += virus->area / Virus::kAreaToVirus;
+        virus->area = 0;
       }
     });
   });
@@ -184,9 +219,21 @@ void Critters::RemoveDeadFood(std::list<Food *> &group) {
   });
 }
 
+void Critters::RemoveDeadVirii(std::list<Virus *> &group) {
+  group.remove_if([] (const Virus *const individual) -> bool {
+    if (individual->area <= 0) {
+      delete individual;
+      return true;
+    } else {
+      return false;
+    }
+  });
+}
+
 void Critters::draw() {
   ofBackground(0.0, 0.0, 0.0);
   DrawGroup(food);
+  DrawGroup(virii);
   DrawGroup(critters);
   DrawGroup(enemy_critters);
   if (debug) {
@@ -207,6 +254,12 @@ void Critters::DrawGroup(std::list<Critter *> &group) const {
 void Critters::DrawGroup(std::list<Food *> &group) const {
   for (auto mote : group) {
     mote->Draw();
+  }
+}
+
+void Critters::DrawGroup(std::list<Virus *> &group) const {
+  for (auto virus : group) {
+    virus->Draw();
   }
 }
 
