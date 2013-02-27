@@ -166,7 +166,7 @@ void Critter::UpdateInternal(float dt) {
     age += kAgeRate * ofRandomuf();
   }
   if (infection > 0 && infection < 1.0 && immunity < 1.0 - kImmunityGrowthRate) {
-    immunity += kImmunityGrowthRate * ofRandomuf();
+    immunity += infection * kImmunityGrowthRate * ofRandomuf();
   }
   if (infection >= 1.0 && ofRandomuf() < Virus::kGrowthRate * age * age * age - immunity) {
     infection += 1;

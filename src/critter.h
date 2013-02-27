@@ -54,7 +54,7 @@ public:
   static constexpr float kChildScaleFactor = 0.8;
   static constexpr float kDrag = 0.9;
   static constexpr float kGrowthRate = 0.05;
-  static constexpr float kImmunityGrowthRate = 0.1;
+  static constexpr float kImmunityGrowthRate = 0.001;
   static const ofColor kInteriorCellColor;
   static constexpr float kLineWidthScaleFactor = 0.004;
   static constexpr float kMaxComponentOfVelocity = 10.0;
