@@ -191,13 +191,13 @@
 		E4B69E1C0A3A1BDC003C02F2 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				4686452816CB2ABB00326532 /* circle.cpp */,
+				4686452916CB2ABB00326532 /* circle.h */,
+				4688C4E616CB278F000EFA6E /* gameobject.cpp */,
+				4688C4E716CB278F000EFA6E /* gameobject.h */,
 				E4B69E1D0A3A1BDC003C02F2 /* main.cpp */,
 				E4B69E1E0A3A1BDC003C02F2 /* testApp.cpp */,
 				E4B69E1F0A3A1BDC003C02F2 /* testApp.h */,
-				4688C4E616CB278F000EFA6E /* gameobject.cpp */,
-				4688C4E716CB278F000EFA6E /* gameobject.h */,
-				4686452816CB2ABB00326532 /* circle.cpp */,
-				4686452916CB2ABB00326532 /* circle.h */,
 			);
 			path = src;
 			sourceTree = SOURCE_ROOT;
