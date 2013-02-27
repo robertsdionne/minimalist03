@@ -28,7 +28,7 @@ public:
   virtual float reproductivity() const;
   virtual float mortality() const;
   
-  void Draw();
+  virtual void Draw() const;
   
   virtual void DrawInternal() const;
   

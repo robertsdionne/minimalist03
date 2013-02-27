@@ -1,5 +1,6 @@
 #include "critter.h"
 #include "critters.h"
+#include "food.h"
 
 constexpr unsigned int Critters::kNumGameObjects;
 
@@ -11,26 +12,32 @@ void Critters::setup() {
   enemy_target_angle = 0;
   for (unsigned int i = 0; i < kNumGameObjects; ++i) {
     CreateShape(critters, true, ofVec2f(ofRandomWidth(), ofRandomHeight()));
-  }
-  for (unsigned int i = 0; i < kNumGameObjects; ++i) {
     CreateShape(enemy_critters, false, ofVec2f(ofRandomWidth(), ofRandomHeight()));
+  }
+  for (unsigned int i = 0; i < kNumFood; ++i) {
+    food.push_back(new Food());
   }
   debug = false;
 }
 
 void Critters::update() {
+  RemoveDeadFood(food);
   RemoveDeadIndividuals(critters);
   RemoveDeadIndividuals(enemy_critters);
   UpdateGroup(critters, statistics, mouse_position, statistics.overlap.mean < kOverlap, true);
-  if (ofGetFrameNum() % 10 == 0) {
-    enemy_target_angle += ofSignedNoise(ofGetElapsedTimef() / 2.0);
-  }
-  const float radius = ofGetHeight() / 4.0;
+  enemy_target_angle += ofSignedNoise(ofGetElapsedTimef() / 5.0) * 0.05;
+  const float radius = ofGetHeight() / 3.0;
   enemy_center_of_mass = FindCenterOfMass(enemy_critters);
   enemy_target = ofVec2f(radius * cos(enemy_target_angle), radius * sin(enemy_target_angle)) + enemy_center_of_mass;
   Wrap(enemy_target);
+  UpdateFood(food);
   UpdateGroup(enemy_critters, enemy_statistics, enemy_target, enemy_statistics.overlap.mean < kOverlap, false);
-  old_circle_key_down = circle_key_down;
+  CollideFood(critters, food);
+  CollideFood(enemy_critters, food);
+  if (keys['`'] && !previous_keys['`']) {
+    debug = !debug;
+  }
+  previous_keys = keys;
 }
 
 void Critters::UpdateGroup(std::list<Critter *> &group, Statistics &statistics, ofVec2f target, bool move, bool player) {
@@ -38,7 +45,7 @@ void Critters::UpdateGroup(std::list<Critter *> &group, Statistics &statistics, 
     SteerGroup(group, target);
   }
   Collide(group, statistics);
-  if (player && !old_circle_key_down && circle_key_down) {
+  if (player &&  keys[' '] && !previous_keys[' ']) {
     Launch(group);
   }
   for (auto individual : group) {
@@ -47,6 +54,12 @@ void Critters::UpdateGroup(std::list<Critter *> &group, Statistics &statistics, 
       individual->food -= 0.0001;
     }
     individual->MaybeReproduce(group);
+  }
+}
+
+void Critters::UpdateFood(std::list<Food *> &group) {
+  for (auto mote : group) {
+    mote->Update(1.0 / ofGetFrameRate());
   }
 }
 
@@ -138,6 +151,20 @@ void Critters::Collide(std::list<Critter *> &group, Statistics &statistics) {
   statistics.food.mean = statistics.food.total / group.size();
 }
 
+void Critters::CollideFood(std::list<Critter *> &group, std::list<Food *> &food) {
+  std::for_each(group.begin(), group.end(), [&] (Critter *const individual) {
+    std::for_each(food.begin(), food.end(), [&] (Food *const food) {
+      const ofVec2f r = food->position - individual->position;
+      const float actual_distance = r.length();
+      const float colliding_distance = individual->radius() + food->radius();
+      if (actual_distance < colliding_distance) {
+        individual->food += food->area / Food::kAreaToFood;
+        food->area = 0;
+      }
+    });
+  });
+}
+
 void Critters::RemoveDeadIndividuals(std::list<Critter *> &group) {
   group.remove_if([] (const Critter *const individual) -> bool {
     if (individual->area <= 0) {
@@ -149,8 +176,17 @@ void Critters::RemoveDeadIndividuals(std::list<Critter *> &group) {
   });
 }
 
+void Critters::RemoveDeadFood(std::list<Food *> &group) {
+  std::for_each(group.begin(), group.end(), [] (Food *const food) {
+    if (food->area <= 0) {
+      *food = Food();
+    }
+  });
+}
+
 void Critters::draw() {
   ofBackground(0.0, 0.0, 0.0);
+  DrawGroup(food);
   DrawGroup(critters);
   DrawGroup(enemy_critters);
   if (debug) {
@@ -162,49 +198,24 @@ void Critters::draw() {
   }
 }
 
-void Critters::DrawGroup(std::list<Critter *> &group) {
+void Critters::DrawGroup(std::list<Critter *> &group) const {
   for (auto individual : group) {
     individual->Draw();
   }
 }
 
-void Critters::keyPressed(int key) {
-  switch (key) {
-    case 'w':
-      reproduce_type = 0;
-      break;
-    case ' ':
-      circle_key_down = true;
-      reproduce_type = 1;
-      break;
-    case 'a':
-      square_key_down = true;
-      reproduce_type = 2;
-      break;
-    case 'x':
-      shift_key_down = true;
-      break;
-    default:
-      break;
+void Critters::DrawGroup(std::list<Food *> &group) const {
+  for (auto mote : group) {
+    mote->Draw();
   }
 }
 
+void Critters::keyPressed(int key) {
+  keys[key] = true;
+}
+
 void Critters::keyReleased(int key) {
-  switch (key) {
-    case 'w':
-      break;
-    case ' ':
-      circle_key_down = false;
-      break;
-    case 'a':
-      square_key_down = false;
-      break;
-    case 'x':
-      shift_key_down = false;
-      break;
-    default:
-      break;
-  }
+  keys[key] = false;
 }
 
 void Critters::mouseMoved(int x, int y) {
@@ -212,34 +223,35 @@ void Critters::mouseMoved(int x, int y) {
 }
 
 void Critters::mouseDragged(int x, int y, int button) {
-  std::for_each(critters.begin(), critters.end(), [this, x, y] (Critter *const individual) {
-    const ofVec2f r = individual->position - ofVec2f(x, y);
-    const float actual_distance = r.length();
-    const float colliding_distance = individual->radius();
-    if (actual_distance < colliding_distance) {
-      if (shift_key_down) {
-        individual->area = 0;
-      } else if (statistics.food.total < critters.size()) {
-        individual->food += 10;
+  if (debug) {
+    std::for_each(critters.begin(), critters.end(), [this, x, y] (Critter *const individual) {
+      const ofVec2f r = individual->position - ofVec2f(x, y);
+      const float actual_distance = r.length();
+      const float colliding_distance = individual->radius();
+      if (actual_distance < colliding_distance) {
+        if (keys['x']) {
+          individual->area = 0;
+        } else if (statistics.food.total < critters.size()) {
+          individual->food += 10;
+        }
       }
-    }
-  });
-  std::for_each(enemy_critters.begin(), enemy_critters.end(), [this, x, y] (Critter *const individual) {
-    const ofVec2f r = individual->position - ofVec2f(x, y);
-    const float actual_distance = r.length();
-    const float colliding_distance = individual->radius();
-    if (actual_distance < colliding_distance) {
-      if (shift_key_down) {
-        individual->area = 0;
-      } else if (enemy_statistics.food.total < enemy_critters.size()) {
-        individual->food += 10;
+    });
+    std::for_each(enemy_critters.begin(), enemy_critters.end(), [this, x, y] (Critter *const individual) {
+      const ofVec2f r = individual->position - ofVec2f(x, y);
+      const float actual_distance = r.length();
+      const float colliding_distance = individual->radius();
+      if (actual_distance < colliding_distance) {
+        if (keys['x']) {
+          individual->area = 0;
+        } else if (enemy_statistics.food.total < enemy_critters.size()) {
+          individual->food += 10;
+        }
       }
-    }
-  });
+    });
+  }
 }
 
 void Critters::mousePressed(int x, int y, int button) {
-  mouse_down = true;
   mouseDragged(x, y, button);
 }
 
@@ -252,7 +264,6 @@ void Critters::SteerGroup(std::list<Critter *> &group, ofVec2f target) {
 }
 
 void Critters::mouseReleased(int x, int y, int button) {
-  mouse_down = false;
 }
 
 void Critters::windowResized(int width, int height) {

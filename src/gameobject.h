@@ -30,6 +30,8 @@ public:
   
   void Accelerate(float dt);
   
+  virtual void Draw() const = 0;
+  
   void Inertia();
   
   float mass;

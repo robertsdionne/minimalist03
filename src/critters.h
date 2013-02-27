@@ -2,8 +2,10 @@
 
 #include <limits>
 #include <list>
+#include <map>
 
 #include "critter.h"
+#include "food.h"
 #include "ofMain.h"
 
 class Critters : public ofBaseApp {
@@ -54,19 +56,25 @@ private:
   };
   
   void Collide(std::list<Critter *> &group, Statistics &statistics);
+  void CollideFood(std::list<Critter *> &group, std::list<Food *> &food);
   ofVec2f FindCenterOfMass(std::list<Critter *> &group);
   void CreateShape(std::list<Critter *> &group, bool player, ofVec2f at);
-  void DrawGroup(std::list<Critter *> &group);
+  void DrawGroup(std::list<Critter *> &group) const;
+  void DrawGroup(std::list<Food *> &group) const;
+  void RemoveDeadFood(std::list<Food *> &group);
   void RemoveDeadIndividuals(std::list<Critter *> &group);
   void SteerGroup(std::list<Critter *> &group, ofVec2f target);
   void UpdateGroup(std::list<Critter *> &group, Statistics &statistics, ofVec2f target, bool move, bool player);
+  void UpdateFood(std::list<Food *> &group);
   void Launch(std::list<Critter *> &group);
   void Wrap(ofVec2f &position);
   
 private:
+  static constexpr unsigned int kNumFood = 100;
   static constexpr unsigned int kNumGameObjects = 50;
   static constexpr float kOverlap = 0.5;
   
+  std::list<Food *> food;
   std::list<Critter *> critters;
   std::list<Critter *> enemy_critters;
   
@@ -79,10 +87,7 @@ private:
   Statistics statistics;
   Statistics enemy_statistics;
   
-  bool mouse_down;
   bool debug;
-  bool old_circle_key_down;
-  bool circle_key_down;
-  bool shift_key_down;
-  bool square_key_down;
+  std::map<int, bool> keys;
+  std::map<int, bool> previous_keys;
 };

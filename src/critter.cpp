@@ -70,7 +70,7 @@ void Critter::DrawInternal() const {
 }
 
 
-void Critter::Draw() {
+void Critter::Draw() const {
   ofPushStyle();
   ofSetColor(ofColor::white, 128);
   std::for_each(connected.begin(), connected.end(), [&] (Critter *const neighbor) {
