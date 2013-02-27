@@ -76,10 +76,6 @@ void Critter::DrawInternal() const {
 
 
 void Critter::Draw() {
-  //  ofSetColor(ofColor::gray);
-  //  std::for_each(neighbors.begin(), neighbors.end(), [&] (Critter *const neighbor) {
-  //    ofLine(position, neighbor->position);
-  //  });
   if (!player) {
     ofPushStyle();
     ofSetColor(ofColor::white);
@@ -103,9 +99,6 @@ void Critter::Draw() {
   }
   ofColor membrane = membrane_color();
   membrane.setSaturation(255 * (1-age * age * age));
-//  if (parity < 0) {
-//    membrane.setHue(std::fmod(membrane.getHue() + 50.0, 255.0));
-//  }
   ofSetColor(membrane / (21.0 / size));
   ofNoFill();
   ofSetLineWidth(size * kLineWidthScaleFactor);
