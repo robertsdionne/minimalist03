@@ -6,7 +6,7 @@
 #include "critter.h"
 #include "ofMain.h"
 
-class testApp : public ofBaseApp {
+class Critters : public ofBaseApp {
 public:
   void setup();
   

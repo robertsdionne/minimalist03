@@ -1,9 +1,9 @@
 #include "critter.h"
-#include "testApp.h"
+#include "Critters.h"
 
-constexpr unsigned int testApp::kNumGameObjects;
+constexpr unsigned int Critters::kNumGameObjects;
 
-void testApp::setup() {
+void Critters::setup() {
   ofEnableSmoothing();
   mouse_position = ofVec2f(ofGetWidth() / 2, ofGetHeight() / 2);
   reproduce_type = 0;
@@ -16,7 +16,7 @@ void testApp::setup() {
   }
 }
 
-void testApp::update() {
+void Critters::update() {
   RemoveDeadIndividuals(critters);
   RemoveDeadIndividuals(enemy_critters);
   UpdateGroup(critters, statistics, mouse_position, statistics.overlap.mean < 0.5, true);
@@ -29,7 +29,7 @@ void testApp::update() {
   old_circle_key_down = circle_key_down;
 }
 
-void testApp::UpdateGroup(std::list<Critter *> &group, Statistics &statistics, ofVec2f target, bool move, bool player) {
+void Critters::UpdateGroup(std::list<Critter *> &group, Statistics &statistics, ofVec2f target, bool move, bool player) {
   if (move) {
     SteerGroup(group, target);
   }
@@ -46,7 +46,7 @@ void testApp::UpdateGroup(std::list<Critter *> &group, Statistics &statistics, o
   }
 }
 
-ofVec2f testApp::FindCenterOfMass(std::list<Critter *> &group) {
+ofVec2f Critters::FindCenterOfMass(std::list<Critter *> &group) {
   ofVec2f center_of_mass;
   float total_mass;
   std::for_each(group.begin(), group.end(), [&center_of_mass, &total_mass] (Critter *const individual) {
@@ -57,7 +57,7 @@ ofVec2f testApp::FindCenterOfMass(std::list<Critter *> &group) {
   return center_of_mass;
 }
 
-void testApp::Launch(std::list<Critter *> &group) {
+void Critters::Launch(std::list<Critter *> &group) {
   ofVec2f center_of_mass = FindCenterOfMass(group);
   std::list<Critter *>::iterator start = group.begin();
   std::advance(start, ofRandom(group.size()));
@@ -79,7 +79,7 @@ void testApp::Launch(std::list<Critter *> &group) {
   }
 }
 
-void testApp::Wrap(ofVec2f &position) {
+void Critters::Wrap(ofVec2f &position) {
   if (position.x < 0) {
     position.x += ofGetWidth();
   }
@@ -94,7 +94,7 @@ void testApp::Wrap(ofVec2f &position) {
   }
 }
 
-void testApp::Collide(std::list<Critter *> &group, Statistics &statistics) {
+void Critters::Collide(std::list<Critter *> &group, Statistics &statistics) {
   statistics = Statistics();
   std::for_each(group.begin(), group.end(), [&] (Critter *const individual0) {
     std::list<Critter *> overlapping;
@@ -134,7 +134,7 @@ void testApp::Collide(std::list<Critter *> &group, Statistics &statistics) {
   statistics.food.mean = statistics.food.total / group.size();
 }
 
-void testApp::RemoveDeadIndividuals(std::list<Critter *> &group) {
+void Critters::RemoveDeadIndividuals(std::list<Critter *> &group) {
   group.remove_if([] (const Critter *const individual) -> bool {
     if (individual->size <= 0) {
       delete individual;
@@ -145,7 +145,7 @@ void testApp::RemoveDeadIndividuals(std::list<Critter *> &group) {
   });
 }
 
-void testApp::draw() {
+void Critters::draw() {
   ofBackground(0.0, 0.0, 0.0);
   DrawGroup(critters);
   DrawGroup(enemy_critters);
@@ -156,13 +156,13 @@ void testApp::draw() {
   ofDrawBitmapString(overlap.str(), 10, 10);
 }
 
-void testApp::DrawGroup(std::list<Critter *> &group) {
+void Critters::DrawGroup(std::list<Critter *> &group) {
   for (auto individual : group) {
     individual->Draw();
   }
 }
 
-void testApp::keyPressed(int key) {
+void Critters::keyPressed(int key) {
   switch (key) {
     case 'w':
       reproduce_type = 0;
@@ -183,7 +183,7 @@ void testApp::keyPressed(int key) {
   }
 }
 
-void testApp::keyReleased(int key) {
+void Critters::keyReleased(int key) {
   switch (key) {
     case 'w':
       break;
@@ -201,11 +201,11 @@ void testApp::keyReleased(int key) {
   }
 }
 
-void testApp::mouseMoved(int x, int y) {
+void Critters::mouseMoved(int x, int y) {
   mouse_position = ofVec2f(x, y);
 }
 
-void testApp::mouseDragged(int x, int y, int button) {
+void Critters::mouseDragged(int x, int y, int button) {
   std::for_each(critters.begin(), critters.end(), [this, x, y] (Critter *const individual) {
     const ofVec2f r = individual->position - ofVec2f(x, y);
     const float actual_distance = r.length();
@@ -232,12 +232,12 @@ void testApp::mouseDragged(int x, int y, int button) {
   });
 }
 
-void testApp::mousePressed(int x, int y, int button) {
+void Critters::mousePressed(int x, int y, int button) {
   mouse_down = true;
   mouseDragged(x, y, button);
 }
 
-void testApp::SteerGroup(std::list<Critter *> &group, ofVec2f target) {
+void Critters::SteerGroup(std::list<Critter *> &group, ofVec2f target) {
   std::for_each(group.begin(), group.end(), [target] (Critter *const individual) {
     ofVec2f desired_velocity = target - individual->position;
     if (desired_velocity.length() < 1000.0) {
@@ -247,23 +247,23 @@ void testApp::SteerGroup(std::list<Critter *> &group, ofVec2f target) {
   });
 }
 
-void testApp::mouseReleased(int x, int y, int button) {
+void Critters::mouseReleased(int x, int y, int button) {
   mouse_down = false;
 }
 
-void testApp::windowResized(int width, int height) {
+void Critters::windowResized(int width, int height) {
 
 }
 
-void testApp::gotMessage(ofMessage msg) {
+void Critters::gotMessage(ofMessage msg) {
 
 }
 
-void testApp::dragEvent(ofDragInfo dragInfo) { 
+void Critters::dragEvent(ofDragInfo dragInfo) { 
 
 }
 
-void testApp::CreateShape(std::list<Critter *> &group, bool player, ofVec2f at) {
+void Critters::CreateShape(std::list<Critter *> &group, bool player, ofVec2f at) {
   constexpr float mass = 1.0;
   const float size = 10;
   const float orientation = 2.0 * M_PI * ofRandomuf();
