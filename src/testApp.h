@@ -3,7 +3,7 @@
 #include <limits>
 #include <list>
 
-#include "gameobject.h"
+#include "critter.h"
 #include "ofMain.h"
 
 class testApp : public ofBaseApp {
@@ -53,21 +53,21 @@ private:
     Statistic food;
   };
   
-  void Collide(std::list<GameObject *> &group, Statistics &statistics);
-  ofVec2f FindCenterOfMass(std::list<GameObject *> &group);
-  void CreateShape(std::list<GameObject *> &group, bool player, ofVec2f at);
-  void DrawGroup(std::list<GameObject *> &group);
-  void RemoveDeadIndividuals(std::list<GameObject *> &group);
-  void SteerGroup(std::list<GameObject *> &group, ofVec2f target);
-  void UpdateGroup(std::list<GameObject *> &group, Statistics &statistics, ofVec2f target, bool move, bool player);
-  void Launch(std::list<GameObject *> &group);
+  void Collide(std::list<Critter *> &group, Statistics &statistics);
+  ofVec2f FindCenterOfMass(std::list<Critter *> &group);
+  void CreateShape(std::list<Critter *> &group, bool player, ofVec2f at);
+  void DrawGroup(std::list<Critter *> &group);
+  void RemoveDeadIndividuals(std::list<Critter *> &group);
+  void SteerGroup(std::list<Critter *> &group, ofVec2f target);
+  void UpdateGroup(std::list<Critter *> &group, Statistics &statistics, ofVec2f target, bool move, bool player);
+  void Launch(std::list<Critter *> &group);
   void Wrap(ofVec2f &position);
   
 private:
   static const unsigned int kNumGameObjects = 50;
   
-  std::list<GameObject *> circles;
-  std::list<GameObject *> enemy_circles;
+  std::list<Critter *> critters;
+  std::list<Critter *> enemy_critters;
   
   float enemy_target_angle;
   ofVec2f mouse_position;
