@@ -47,12 +47,14 @@ public:
   float food;
   float age;
   float infection;
+  float immunity;
   
   static constexpr float kAgeRate = 0.0005;
   static constexpr float kBreederSize = 10.0;
-  static constexpr float kChildScaleFactor = 0.5;
+  static constexpr float kChildScaleFactor = 0.8;
   static constexpr float kDrag = 0.9;
   static constexpr float kGrowthRate = 0.05;
+  static constexpr float kImmunityGrowthRate = 0.1;
   static const ofColor kInteriorCellColor;
   static constexpr float kLineWidthScaleFactor = 0.004;
   static constexpr float kMaxComponentOfVelocity = 10.0;

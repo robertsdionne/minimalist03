@@ -15,9 +15,10 @@ class Virus : public GameObject {
 public:
   static constexpr float kArea = 5.0;
   static constexpr float kAreaToVirus = 5.0;
-  static constexpr float kGrowthRate = 0.001;
+  static constexpr float kGrowthRate = 0.01;
   static constexpr float kImpulse = 0.01;
   static constexpr float kInfectionRate = 0.01;
+  static constexpr float kMortality = 0.001;
   
   Virus();
   

@@ -27,7 +27,7 @@ constexpr float Critter::kLineWidthScaleFactor;
 constexpr float Critter::kMaxComponentOfVelocity;
 
 Critter::Critter(bool player, float food, float mass, float area, ofVec2f position, ofVec2f velocity)
-: GameObject(mass, area, position, velocity), player(player), neighbors(), food(food), infection(0), age(0), parity(ofRandomuf() < 0.5 ? -1.0 : 1.0) {}
+: GameObject(mass, area, position, velocity), player(player), neighbors(), food(food), infection(0), immunity(0), age(0), parity(ofRandomuf() < 0.5 ? -1.0 : 1.0) {}
 
 ofColor Critter::membrane_color() const {
   if (player) {
@@ -165,7 +165,10 @@ void Critter::UpdateInternal(float dt) {
   if (age <= 1.0 - kAgeRate) {
     age += kAgeRate * ofRandomuf();
   }
-  if (infection >= 1.0 && ofRandomuf() < Virus::kGrowthRate) {
+  if (infection > 0 && infection < 1.0 && immunity < 1.0 - kImmunityGrowthRate) {
+    immunity += kImmunityGrowthRate * ofRandomuf();
+  }
+  if (infection >= 1.0 && ofRandomuf() < Virus::kGrowthRate * age * age * age - immunity) {
     infection += 1;
   }
   force += -kDrag * velocity();

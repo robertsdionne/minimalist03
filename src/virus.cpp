@@ -29,6 +29,9 @@ void Virus::Update(float dt) {
   position.x += kImpulse * ofRandomf();
   position.y += kImpulse * ofRandomf();
   Wrap();
+  if (ofRandomuf() < kMortality) {
+    area = 0;
+  }
 }
 
 void Virus::Wrap() {
