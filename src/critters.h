@@ -57,6 +57,7 @@ private:
   };
   
   void Collide(std::list<Critter *> &group, Statistics &statistics);
+  void Collide(std::list<Critter *> &critters, std::list<Critter *> &enemy_critters);
   void CollideFood(std::list<Critter *> &group, std::list<Food *> &food);
   void CollideVirii(std::list<Critter *> &group, std::list<Virus *> &virii);
   ofVec2f FindCenterOfMass(std::list<Critter *> &group);

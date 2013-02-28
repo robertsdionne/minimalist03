@@ -38,6 +38,7 @@ void Critters::update() {
   CollideVirii(enemy_critters, virii);
   CollideFood(critters, food);
   CollideFood(enemy_critters, food);
+  Collide(critters, enemy_critters);
   RemoveDeadFood(food);
   RemoveDeadVirii(virii);
   RemoveDeadIndividuals(critters);
@@ -171,6 +172,21 @@ void Critters::Collide(std::list<Critter *> &group, Statistics &statistics) {
   });
   statistics.overlap.mean = statistics.overlap.total / group.size();
   statistics.food.mean = statistics.food.total / group.size();
+}
+
+void Critters::Collide(std::list<Critter *> &critters, std::list<Critter *> &enemy_critters) {
+  std::for_each(critters.begin(), critters.end(), [&] (Critter *const critter) {
+    std::for_each(enemy_critters.begin(), enemy_critters.end(), [&] (Critter *const enemy_critter) {
+      const ofVec2f r = enemy_critter->position - critter->position;
+      const float actual_distance = r.length();
+      const float colliding_distance = critter->radius() + enemy_critter->radius();
+      if (actual_distance < colliding_distance) {
+        const float overlap = colliding_distance - actual_distance;
+        critter->force -= 10.0 * r.normalized() * sqrt(overlap);
+        enemy_critter->force += 10.0 * r.normalized() * sqrt(overlap);
+      }
+    });
+  });
 }
 
 void Critters::CollideFood(std::list<Critter *> &group, std::list<Food *> &food) {
