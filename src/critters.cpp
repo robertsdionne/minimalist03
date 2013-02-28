@@ -34,14 +34,14 @@ void Critters::update() {
   UpdateFood(food);
   UpdateVirii(virii);
   UpdateGroup(enemy_critters, enemy_statistics, enemy_target, enemy_statistics.overlap.mean < kOverlap, false);
-  RemoveDeadFood(food);
-  RemoveDeadVirii(virii);
-  RemoveDeadIndividuals(critters);
-  RemoveDeadIndividuals(enemy_critters);
   CollideVirii(critters, virii);
   CollideVirii(enemy_critters, virii);
   CollideFood(critters, food);
   CollideFood(enemy_critters, food);
+  RemoveDeadFood(food);
+  RemoveDeadVirii(virii);
+  RemoveDeadIndividuals(critters);
+  RemoveDeadIndividuals(enemy_critters);
   if (keys['`'] && !previous_keys['`']) {
     debug = !debug;
   }
@@ -207,6 +207,26 @@ void Critters::CollideVirii(std::list<Critter *> &group, std::list<Virus *> &vir
 }
 
 void Critters::RemoveDeadIndividuals(std::list<Critter *> &group) {
+  std::for_each(group.begin(), group.end(), [] (Critter *const individual) {
+    std::list<Critter *> new_neighbors;
+    std::copy(individual->neighbors.begin(), individual->neighbors.end(), new_neighbors.begin());
+    new_neighbors.remove_if([] (const Critter *const individual) -> bool {
+      if (individual->area <= 0) {
+        delete individual;
+        return true;
+      } else {
+        return false;
+      }
+    });
+    individual->neighbors = new_neighbors;
+    std::set<Critter *> new_connected = individual->connected;
+    individual->connected.clear();
+    for (Critter *const critter : new_connected) {
+      if (critter->area > 0) {
+        individual->connected.insert(critter);
+      }
+    }
+  });
   group.remove_if([] (const Critter *const individual) -> bool {
     if (individual->area <= 0) {
       delete individual;
