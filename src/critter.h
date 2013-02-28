@@ -66,6 +66,7 @@ public:
   static constexpr float kReproductivity = 0.001;
   static const ofColor kWallCellColor;
   static constexpr float kWallMortality = 0.00002;
+  static constexpr float kWallSize = 12.0;
 };
 
 #endif /* defined(__minimalist01__critter__) */

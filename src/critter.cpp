@@ -91,7 +91,7 @@ void Critter::Draw() const {
     ofDisableAlphaBlending();
   }
   ofColor membrane = membrane_color();
-  membrane.setSaturation(255 * (1-age * age * age));
+  membrane.setSaturation(255 * (1 - age * age * age));
   ofSetColor(membrane / (21.0 / radius()));
   ofNoFill();
   ofSetLineWidth(area * kLineWidthScaleFactor);
@@ -149,13 +149,13 @@ void Critter::UpdateInternal(float dt) {
     const ofVec2f r = position - neighbor->position;
     const float actual_distance = r.length();
     const float colliding_distance = radius() + neighbor->radius();
-    if ((radius() > 12.0 && neighbor->radius() > 12.0 && actual_distance > colliding_distance * 8.0)
+    if ((radius() > kWallSize && neighbor->radius() > kWallSize && actual_distance > colliding_distance * 8.0)
         || actual_distance > colliding_distance * 1.3) {
       connected.erase(neighbor);
     }
   });
   std::for_each(neighbors.begin(), neighbors.end(), [&] (Critter *const neighbor) {
-    if ((parity == neighbor->parity && connected.size() < 2) || (radius() > 12.0)) {
+    if ((parity == neighbor->parity && connected.size() < 2) || (radius() > kWallSize)) {
       connected.insert(neighbor);
     }
   });
