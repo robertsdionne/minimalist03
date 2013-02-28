@@ -183,16 +183,16 @@ void Critters::Collide(std::list<Critter *> &critters, std::list<Critter *> &ene
         critter->force -= 10.0 * r.normalized() * sqrt(overlap);
         enemy_critter->force += 10.0 * r.normalized() * sqrt(overlap);
         if (critter->attacker() && ofRandomuf() < Critter::kAttackChance) {
-          critter->orientation_speed += ofRandomuf();
+          critter->orientation_speed += 5.0 * ofRandomuf();
           enemy_critter->area /= 2.0;
-          if (enemy_critter->area < 1.0) {
+          if (enemy_critter->area < 50.0) {
             enemy_critter->area = 0;
           }
         }
         if (enemy_critter->attacker() && ofRandomuf() < Critter::kAttackChance) {
-          enemy_critter->orientation_speed += ofRandomuf();
+          enemy_critter->orientation_speed += 5.0 * ofRandomuf();
           critter->area /= 2.0;
-          if (critter->area < 1.0) {
+          if (critter->area < 50.0) {
             critter->area = 0;
           }
         }
