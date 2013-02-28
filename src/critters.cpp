@@ -90,24 +90,22 @@ ofVec2f Critters::FindCenterOfMass(std::list<Critter *> &group) {
 }
 
 void Critters::Launch(std::list<Critter *> &group) {
-  ofVec2f center_of_mass = FindCenterOfMass(group);
-  std::list<Critter *>::iterator start = group.begin();
-  std::advance(start, ofRandom(group.size()));
-  Critter *individual = *start;
-  while (true) {
-    bool found_closer_neighbor = false;
-    std::for_each(individual->neighbors.begin(), individual->neighbors.end(), [this, &individual, &found_closer_neighbor] (Critter *neighbor) {
-      if ((mouse_position - neighbor->position).lengthSquared() < (mouse_position - individual->position).lengthSquared()) {
-        individual = neighbor;
-        found_closer_neighbor = true;
+  const ofVec2f center_of_mass = FindCenterOfMass(group);
+  float closest_distance = std::numeric_limits<float>::infinity();
+  Critter *closest;
+  std::for_each(group.begin(), group.end(), [&] (Critter *const critter) {
+    if (critter->attacker() && critter->neighbors.size() > 0) {
+      const float distance = (mouse_position - critter->position).length();
+      if (distance < closest_distance) {
+        closest_distance = distance;
+        closest = critter;
       }
-    });
-    if (!found_closer_neighbor) {
-      ofVec2f desired_velocity = mouse_position - individual->position;
-      desired_velocity.scale(100000.0);
-      individual->force += desired_velocity - individual->velocity();
-      break;
     }
+  });
+  if (closest) {
+    const float strength = 100.0 * (mouse_position - center_of_mass).length();
+    ofVec2f desired_velocity = strength * (mouse_position - closest->position).normalized();
+    closest->force += desired_velocity - closest->velocity();
   }
 }
 
@@ -184,6 +182,20 @@ void Critters::Collide(std::list<Critter *> &critters, std::list<Critter *> &ene
         const float overlap = colliding_distance - actual_distance;
         critter->force -= 10.0 * r.normalized() * sqrt(overlap);
         enemy_critter->force += 10.0 * r.normalized() * sqrt(overlap);
+        if (critter->attacker() && ofRandomuf() < Critter::kAttackChance) {
+          critter->orientation_speed += ofRandomuf();
+          enemy_critter->area /= 2.0;
+          if (enemy_critter->area < 1.0) {
+            enemy_critter->area = 0;
+          }
+        }
+        if (enemy_critter->attacker() && ofRandomuf() < Critter::kAttackChance) {
+          enemy_critter->orientation_speed += ofRandomuf();
+          critter->area /= 2.0;
+          if (critter->area < 1.0) {
+            critter->area = 0;
+          }
+        }
       }
     });
   });

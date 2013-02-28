@@ -16,6 +16,7 @@ const ofColor Critter::kMembraneColor = ofColor(255.0, 102.0, 102.0);
 const ofColor Critter::kWallCellColor = ofColor(0.0, 0.0, 255.0);
 const ofColor Critter::kInteriorCellColor = ofColor(128.0, 0, 128.0);
 
+constexpr float Critter::kAttackChance;
 constexpr unsigned int Critter::kMaxPopulation;
 constexpr float Critter::kMinSize;
 constexpr float Critter::kBreederSize;
@@ -27,7 +28,7 @@ constexpr float Critter::kLineWidthScaleFactor;
 constexpr float Critter::kMaxComponentOfVelocity;
 
 Critter::Critter(bool player, float food, float mass, float area, ofVec2f position, ofVec2f velocity)
-: GameObject(mass, area, position, velocity), player(player), neighbors(), food(food), infection(0), immunity(0), age(0), parity(ofRandomuf() < 0.5 ? -1.0 : 1.0) {}
+: GameObject(mass, area, position, velocity), player(player), neighbors(), food(food), infection(0), immunity(0), age(0), parity(ofRandomuf() < 0.5 ? -1.0 : 1.0), orientation(0), orientation_speed(0) {}
 
 bool Critter::attacker() const {
   return radius() > kWallSize && parity > 0;
@@ -71,7 +72,7 @@ void Critter::DrawInternal() const {
   for (unsigned int i = 0; i < resolution + 1; ++i) {
     if (attacker()) {
       if (i % 4 == 0) {
-        const float attacker_radius = kWallSize + 1.2 * (radius() - kWallSize);
+        const float attacker_radius = kWallSize + 1.0 + 2.0 * sqrt(radius() - kWallSize);
         ofVertex(attacker_radius * cos(i * 2.0 *  M_PI / resolution), attacker_radius * sin(i * 2.0 * M_PI / resolution));
       } else {
         ofVertex(kWallSize * cos(i * 2.0 *  M_PI / resolution), kWallSize * sin(i * 2.0 * M_PI / resolution));
@@ -93,6 +94,7 @@ void Critter::Draw() const {
   ofPopStyle();
   ofPushMatrix();
   ofTranslate(position);
+  ofRotate(ofRadToDeg(orientation));
   ofPushStyle();
   if (food > 0) {
     ofEnableAlphaBlending();
@@ -185,4 +187,6 @@ void Critter::UpdateInternal(float dt) {
     infection += 1;
   }
   force += -kDrag * velocity();
+  orientation_speed *= 0.99;
+  orientation += orientation_speed * dt;
 }

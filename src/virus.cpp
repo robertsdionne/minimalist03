@@ -10,7 +10,7 @@
 #include "ofMain.h"
 #include "virus.h"
 
-const ofColor Virus::kColor = ofColor(227, 66, 52);
+const ofColor Virus::kColor = ofColor(255, 255, 255);
 constexpr float Virus::kGrowthRate;
 constexpr float Virus::kInfectionRate;
 
