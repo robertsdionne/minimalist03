@@ -13,7 +13,7 @@ Food::Food()
 
 void Food::Draw() const {
   ofPushStyle();
-  ofSetColor(ofColor::yellow, 128);
+  ofSetColor(ofColor::yellow);
   ofCircle(position, radius());
   ofPopStyle();
 }

@@ -29,6 +29,10 @@ constexpr float Critter::kMaxComponentOfVelocity;
 Critter::Critter(bool player, float food, float mass, float area, ofVec2f position, ofVec2f velocity)
 : GameObject(mass, area, position, velocity), player(player), neighbors(), food(food), infection(0), immunity(0), age(0), parity(ofRandomuf() < 0.5 ? -1.0 : 1.0) {}
 
+bool Critter::attacker() const {
+  return radius() > kWallSize && parity > 0;
+}
+
 ofColor Critter::membrane_color() const {
   if (player) {
     return kMembraneColor;
@@ -62,9 +66,19 @@ float Critter::mortality() const {
 }
 
 void Critter::DrawInternal() const {
+  const float resolution = 4 * 10;
   ofBeginShape();
-  for (unsigned int i = 0; i < 26; ++i) {
-    ofVertex(cos(i * 2.0 *  M_PI / 25.0), sin(i * 2.0 * M_PI / 25.0));
+  for (unsigned int i = 0; i < resolution + 1; ++i) {
+    if (attacker()) {
+      if (i % 4 == 0) {
+        const float attacker_radius = kWallSize + 1.2 * (radius() - kWallSize);
+        ofVertex(attacker_radius * cos(i * 2.0 *  M_PI / resolution), attacker_radius * sin(i * 2.0 * M_PI / resolution));
+      } else {
+        ofVertex(kWallSize * cos(i * 2.0 *  M_PI / resolution), kWallSize * sin(i * 2.0 * M_PI / resolution));
+      }
+    } else {
+      ofVertex(radius() * cos(i * 2.0 *  M_PI / resolution), radius() * sin(i * 2.0 * M_PI / resolution));
+    }
   }
   ofEndShape();
 }
@@ -79,7 +93,6 @@ void Critter::Draw() const {
   ofPopStyle();
   ofPushMatrix();
   ofTranslate(position);
-  ofScale(radius(), radius());
   ofPushStyle();
   if (food > 0) {
     ofEnableAlphaBlending();
@@ -104,7 +117,7 @@ void Critter::Draw() const {
   if (infection > 0) {
     Virus virus;
     virus.area = infection * Virus::kAreaToVirus;
-    ofSetColor(ofColor::white);
+    ofSetColor(Virus::kColor);
     ofFill();
     ofCircle(0, 0, virus.radius());
   }

@@ -22,6 +22,7 @@ public:
   
   virtual ~Critter() {}
   
+  virtual bool attacker() const;
   virtual ofColor membrane_color() const;
   virtual ofColor wall_cell_color() const;
   virtual ofColor interior_cell_color() const;
@@ -50,6 +51,7 @@ public:
   float immunity;
   
   static constexpr float kAgeRate = 0.0005;
+  static constexpr float kAttackerChance = 0.0001;
   static constexpr float kBreederSize = 10.0;
   static constexpr float kChildScaleFactor = 0.8;
   static constexpr float kDrag = 0.9;

@@ -10,6 +10,7 @@
 #include "ofMain.h"
 #include "virus.h"
 
+const ofColor Virus::kColor = ofColor(227, 66, 52);
 constexpr float Virus::kGrowthRate;
 constexpr float Virus::kInfectionRate;
 
@@ -18,7 +19,7 @@ Virus::Virus()
 
 void Virus::Draw() const {
   ofPushStyle();
-  ofSetColor(ofColor::white, 128);
+  ofSetColor(kColor);
   ofCircle(position, radius());
   ofPopStyle();
 }
