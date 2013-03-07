@@ -24,7 +24,6 @@ void Critters::setup() {
 
 void Critters::update() {
   UpdateGroup(critters, statistics, mouse_position, statistics.overlap.mean < kOverlap, true);
-  const float noise = ofClamp(1.5 * ofNoise(ofGetElapsedTimef()) - 0.1, 0.0, 1.0);
   enemy_target_angle += ofSignedNoise(ofGetElapsedTimef() / 5.0) * 0.05;
   const float radius = ofGetHeight() / 3.0;
   enemy_center_of_mass = FindCenterOfMass(enemy_critters);
@@ -38,8 +37,12 @@ void Critters::update() {
       nearest_food = food->position;
     }
   }
-  float t = noise;
-  enemy_target = (1.0 - t) * enemy_target + t * nearest_food;
+  if (enemy_statistics.attackers.total > 1.5 * statistics.attackers.total) {
+    enemy_target = FindCenterOfMass(critters);
+  } else {
+    float t = 1.0 - ofClamp(enemy_statistics.food.mean / 10.0, 0.0, 1.0);
+    enemy_target = (1.0 - t) * enemy_target + t * nearest_food;
+  }
   Wrap(enemy_target);
   UpdateFood(food);
   UpdateGroup(enemy_critters, enemy_statistics, enemy_target, enemy_statistics.overlap.mean < kOverlap, false);
@@ -49,7 +52,7 @@ void Critters::update() {
   RemoveDeadFood(food);
   RemoveDeadIndividuals(critters);
   RemoveDeadIndividuals(enemy_critters);
-  if (keys['`'] && !previous_keys['`']) {
+  if (keys[OF_KEY_BACKSPACE] && !previous_keys[OF_KEY_BACKSPACE]) {
     debug = !debug;
   }
   previous_keys = keys;
@@ -137,7 +140,9 @@ void Critters::Collide(std::list<Critter *> &group, Statistics &statistics) {
       }
     });
     statistics.food.total += individual0->food;
+    statistics.attackers.total += individual0->attacker();
   });
+  statistics.attackers.mean = statistics.attackers.total / group.size();
   statistics.overlap.mean = statistics.overlap.total / group.size();
   statistics.food.mean = statistics.food.total / group.size();
 }
@@ -226,7 +231,9 @@ void Critters::draw() {
     ofCircle(enemy_target, 2);
     ofCircle(enemy_center_of_mass, 5);
     std::stringstream overlap;
-    overlap << critters.size() << std::endl << enemy_critters.size() << std::endl << ofGetFrameRate();
+    overlap << critters.size() << std::endl << enemy_critters.size() << std::endl
+        << statistics.food.mean << std::endl << enemy_statistics.food.mean << std::endl
+        << ofGetFrameRate();
     ofDrawBitmapString(overlap.str(), 10, 10);
   }
 }

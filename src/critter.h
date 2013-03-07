@@ -47,6 +47,7 @@ public:
   float age;
   float orientation;
   float orientation_speed;
+  bool is_attacker;
   
   static constexpr float kAgeRate = 0.0005;
   static constexpr float kAttackChance = 0.01;

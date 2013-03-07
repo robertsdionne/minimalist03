@@ -14,9 +14,10 @@
 class Food : public GameObject {
 public:
   static constexpr float kArea = M_PI * 70.0;
-  static constexpr float kAreaToFood = 10.0;
+  static constexpr float kAreaToFood = 70.0;
   static constexpr float kImpulse = 8.0;
   static constexpr float kLineWidthScaleFactor = 0.004;
+  static constexpr float kSpawnSpeed = 80.0;
   
   Food();
   
@@ -29,7 +30,10 @@ public:
   void Update(float dt);
   
 private:
+  void RandomSpawn();
+  
   void Wrap();
+  
 };
 
 #endif /* defined(__minimalist01__food__) */

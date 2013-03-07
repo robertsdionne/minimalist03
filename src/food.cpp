@@ -8,8 +8,27 @@
 
 #include "food.h"
 
+void Food::RandomSpawn() {
+  const float choice = ofRandomuf();
+  if (choice < 0.25) {
+    position = ofVec2f(ofRandomWidth(), 0.0);
+    velocity = ofVec2f(0, kSpawnSpeed);
+  } else if (choice < 0.5) {
+    position = ofVec2f(ofRandomWidth(), ofGetHeight());
+    velocity = ofVec2f(0, -kSpawnSpeed);
+  } else if (choice < 0.75) {
+    position = ofVec2f(0.0, ofRandomHeight());
+    velocity = ofVec2f(kSpawnSpeed, 0);
+  } else {
+    position = ofVec2f(ofGetWidth(), ofRandomHeight());
+    velocity = ofVec2f(-kSpawnSpeed, 0);
+  }
+}
+
 Food::Food()
-: GameObject(1.0, kArea, ofVec2f(ofRandomWidth(), ofRandomHeight())) {}
+: GameObject(1.0, kArea) {
+  RandomSpawn();
+}
 
 void Food::Draw() const {
   ofPushMatrix();
@@ -49,16 +68,8 @@ void Food::Update(float dt) {
 }
 
 void Food::Wrap() {
-  if (position.x < 0) {
-    position.x += ofGetWidth();
-  }
-  if (position.x >= ofGetWidth()) {
-    position.x -= ofGetWidth();
-  }
-  if (position.y < 0) {
-    position.y += ofGetHeight();
-  }
-  if (position.y >= ofGetHeight()) {
-    position.y -= ofGetHeight();
+  if (position.x < 0 || position.x >= ofGetWidth() ||
+      position.y < 0 || position.y >= ofGetHeight()) {
+    RandomSpawn();
   }
 }

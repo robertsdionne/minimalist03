@@ -53,6 +53,7 @@ private:
     Statistics() : overlap(), food() {}
     Statistic overlap;
     Statistic food;
+    Statistic attackers;
   };
   
   void Collide(std::list<Critter *> &group, Statistics &statistics);
@@ -91,4 +92,10 @@ private:
   bool debug;
   std::map<int, bool> keys;
   std::map<int, bool> previous_keys;
+  
+  ofSoundPlayer small_plops;
+  ofSoundPlayer plops1;
+  ofSoundPlayer plops2;
+  ofSoundPlayer ratchet1;
+  ofSoundPlayer ratchet2;
 };
