@@ -31,7 +31,7 @@ Critter::Critter(bool player, float food, float mass, float area, ofVec2f positi
   parity(ofRandomuf() < 0.5 ? -1.0 : 1.0), orientation(0), orientation_speed(0), is_attacker(false) {}
 
 bool Critter::attacker() const {
-  return is_attacker;
+  return radius() > kWallSize;
 }
 
 ofColor Critter::membrane_color() const {

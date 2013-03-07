@@ -6,8 +6,7 @@ constexpr unsigned int Critters::kNumCritters;
 
 void Critters::setup() {
   ofSetFrameRate(60.0);
-  ofSetVerticalSync(true);
-  ofEnableSmoothing();
+//  ofEnableSmoothing();
   mouse_position = ofVec2f(kStartCoordinate, kStartCoordinate);
   reproduce_type = 0;
   enemy_target_angle = 0;
@@ -204,7 +203,7 @@ void Critters::Collide(std::list<Critter *> &critters, std::list<Critter *> &ene
         critter->force -= 10.0 * r.normalized() * sqrt(overlap);
         enemy_critter->force += 10.0 * r.normalized() * sqrt(overlap);
         if (critter->attacker() && ofRandomuf() < Critter::kAttackChance) {
-          if (abs(critter->orientation_speed) <= 0.1) {
+          if (abs(critter->orientation_speed) <= 0.01) {
             const float choice = ofRandomuf();
             if (choice < 0.5) {
               ratchet1.play();
@@ -219,7 +218,7 @@ void Critters::Collide(std::list<Critter *> &critters, std::list<Critter *> &ene
           }
         }
         if (enemy_critter->attacker() && ofRandomuf() < Critter::kAttackChance) {
-          if (abs(enemy_critter->orientation_speed) <= 0.1) {
+          if (abs(enemy_critter->orientation_speed) <= 0.01) {
             const float choice = ofRandomuf();
             if (choice < 0.5) {
               ratchet1.play();
@@ -291,8 +290,10 @@ void Critters::draw() {
   DrawGroup(critters);
   DrawGroup(enemy_critters);
   if (debug) {
+    ofLine(enemy_target + ofVec2f(0, -5), enemy_target + ofVec2f(0, 5));
+    ofLine(enemy_target + ofVec2f(-5, 0), enemy_target + ofVec2f(5, 0));
     ofCircle(enemy_target, 2);
-    ofCircle(enemy_center_of_mass, 5);
+    //ofCircle(enemy_center_of_mass, 5);
     std::stringstream overlap;
     overlap << critters.size() << std::endl << enemy_critters.size() << std::endl
         << statistics.food.mean << std::endl << enemy_statistics.food.mean << std::endl

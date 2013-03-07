@@ -65,7 +65,7 @@ public:
   static constexpr float kMortality = 0.0001;
   static constexpr float kReproductivity = 0.001;
   static const ofColor kWallCellColor;
-  static constexpr float kWallMortality = 0.00002;
+  static constexpr float kWallMortality = kMortality;//0.00002;
   static constexpr float kWallSize = 12.0;
 };
 
