@@ -19,10 +19,10 @@ void Food::Draw() const {
 }
 
 void Food::Update(float dt) {
-  Accelerate(dt);
-  Inertia(dt);
   velocity.x += kImpulse * ofRandomf();
   velocity.y += kImpulse * ofRandomf();
+  Accelerate(dt);
+  Inertia(dt);
   Wrap();
 }
 

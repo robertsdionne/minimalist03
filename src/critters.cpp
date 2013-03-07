@@ -208,13 +208,6 @@ void Critters::RemoveDeadIndividuals(std::list<Critter *> &group) {
       }
     });
     individual->neighbors = new_neighbors;
-    std::set<Critter *> new_connected = individual->connected;
-    individual->connected.clear();
-    for (Critter *const critter : new_connected) {
-      if (critter->area > 0) {
-        individual->connected.insert(critter);
-      }
-    }
   });
   group.remove_if([] (const Critter *const individual) -> bool {
     if (individual->area <= 0) {

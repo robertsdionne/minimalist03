@@ -13,9 +13,8 @@
 
 class Food : public GameObject {
 public:
-  static constexpr float kArea = 10.0;
   static constexpr float kAreaToFood = 10.0;
-  static constexpr float kImpulse = 0.01;
+  static constexpr float kImpulse = 0.5;
   
   Food();
   

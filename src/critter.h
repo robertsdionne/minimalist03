@@ -42,7 +42,6 @@ public:
 public:
   bool player;
   std::list<Critter *> neighbors;
-  std::set<Critter *> connected;
   float parity;
   float food;
   float age;

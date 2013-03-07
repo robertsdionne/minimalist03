@@ -86,12 +86,6 @@ void Critter::DrawInternal() const {
 
 
 void Critter::Draw() const {
-  ofPushStyle();
-  ofSetColor(ofColor::white, 128);
-  std::for_each(connected.begin(), connected.end(), [&] (Critter *const neighbor) {
-    ofLine(position, neighbor->position);
-  });
-  ofPopStyle();
   ofPushMatrix();
   ofTranslate(position);
   ofRotate(ofRadToDeg(orientation));
@@ -137,20 +131,6 @@ void Critter::Update(float dt) {
 }
 
 void Critter::UpdateInternal(float dt) {
-  std::for_each(connected.begin(), connected.end(), [&] (Critter *const neighbor) {
-    const ofVec2f r = position - neighbor->position;
-    const float actual_distance = r.length();
-    const float colliding_distance = radius() + neighbor->radius();
-    if ((radius() > kWallSize && neighbor->radius() > kWallSize && actual_distance > colliding_distance * 8.0)
-        || actual_distance > colliding_distance * 1.3) {
-      connected.erase(neighbor);
-    }
-  });
-  std::for_each(neighbors.begin(), neighbors.end(), [&] (Critter *const neighbor) {
-    if ((parity == neighbor->parity && connected.size() < 2) || (radius() > kWallSize)) {
-      connected.insert(neighbor);
-    }
-  });
   if (radius() < kBreederSize - kGrowthRate) {
     area += kGrowthRate * ofRandomuf();
   }
