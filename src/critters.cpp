@@ -6,6 +6,7 @@ constexpr unsigned int Critters::kNumCritters;
 
 void Critters::setup() {
   ofSetFrameRate(60.0);
+  ofSetVerticalSync(true);
   ofEnableSmoothing();
   mouse_position = ofVec2f(kStartCoordinate, kStartCoordinate);
   reproduce_type = 0;
@@ -23,10 +24,22 @@ void Critters::setup() {
 
 void Critters::update() {
   UpdateGroup(critters, statistics, mouse_position, statistics.overlap.mean < kOverlap, true);
+  const float noise = ofClamp(1.5 * ofNoise(ofGetElapsedTimef()) - 0.1, 0.0, 1.0);
   enemy_target_angle += ofSignedNoise(ofGetElapsedTimef() / 5.0) * 0.05;
   const float radius = ofGetHeight() / 3.0;
   enemy_center_of_mass = FindCenterOfMass(enemy_critters);
   enemy_target = ofVec2f(radius * cos(enemy_target_angle), radius * sin(enemy_target_angle)) + enemy_center_of_mass;
+  float nearest_food_distance = std::numeric_limits<float>::infinity();
+  ofVec2f nearest_food;
+  for (auto food : food) {
+    const float dx = (food->position - enemy_center_of_mass).length();
+    if (dx < nearest_food_distance) {
+      nearest_food_distance = dx;
+      nearest_food = food->position;
+    }
+  }
+  float t = noise;
+  enemy_target = (1.0 - t) * enemy_target + t * nearest_food;
   Wrap(enemy_target);
   UpdateFood(food);
   UpdateGroup(enemy_critters, enemy_statistics, enemy_target, enemy_statistics.overlap.mean < kOverlap, false);
@@ -47,9 +60,6 @@ void Critters::UpdateGroup(std::list<Critter *> &group, Statistics &statistics, 
     SteerGroup(group, target);
   }
   Collide(group, statistics);
-  if (player &&  keys[' '] && !previous_keys[' ']) {
-    Launch(group);
-  }
   for (auto individual : group) {
     individual->Update(1.0 / ofGetFrameRate());
     if (individual->food >= 0.0001) {
@@ -74,26 +84,6 @@ ofVec2f Critters::FindCenterOfMass(std::list<Critter *> &group) {
   });
   center_of_mass /= total_mass;
   return center_of_mass;
-}
-
-void Critters::Launch(std::list<Critter *> &group) {
-  const ofVec2f center_of_mass = FindCenterOfMass(group);
-  float closest_distance = std::numeric_limits<float>::infinity();
-  Critter *closest;
-  std::for_each(group.begin(), group.end(), [&] (Critter *const critter) {
-    if (critter->attacker() && critter->neighbors.size() > 0) {
-      const float distance = (mouse_position - critter->position).length();
-      if (distance < closest_distance) {
-        closest_distance = distance;
-        closest = critter;
-      }
-    }
-  });
-  if (closest) {
-    const float strength = 100.0 * (mouse_position - center_of_mass).length();
-    ofVec2f desired_velocity = strength * (mouse_position - closest->position).normalized();
-    closest->force += desired_velocity - closest->velocity;
-  }
 }
 
 void Critters::Wrap(ofVec2f &position) {

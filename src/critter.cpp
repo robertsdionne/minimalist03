@@ -31,7 +31,7 @@ Critter::Critter(bool player, float food, float mass, float area, ofVec2f positi
   parity(ofRandomuf() < 0.5 ? -1.0 : 1.0), orientation(0), orientation_speed(0) {}
 
 bool Critter::attacker() const {
-  return radius() > kWallSize && parity > 0;
+  return radius() > kWallSize;
 }
 
 ofColor Critter::membrane_color() const {
@@ -72,7 +72,7 @@ void Critter::DrawInternal() const {
   for (unsigned int i = 0; i < resolution + 1; ++i) {
     if (attacker()) {
       if (i % 4 == 0) {
-        const float attacker_radius = kWallSize + 1.0 + 2.0 * sqrt(radius() - kWallSize);
+        const float attacker_radius = kWallSize + 4.0 + 2.0 * sqrt(radius() - kWallSize);
         ofVertex(attacker_radius * cos(i * 2.0 *  M_PI / resolution), attacker_radius * sin(i * 2.0 * M_PI / resolution));
       } else {
         ofVertex(kWallSize * cos(i * 2.0 *  M_PI / resolution), kWallSize * sin(i * 2.0 * M_PI / resolution));
@@ -110,7 +110,7 @@ void Critter::Draw() const {
 }
 
 void Critter::MaybeReproduce(std::list<Critter *> &group) {
-  if (radius() <= kBreederSize && food >= 0.5 && ofRandomuf() < reproductivity() && group.size() < kMaxPopulation) {
+  if (radius() <= kWallSize && food >= 0.5 && ofRandomuf() < reproductivity() && group.size() < kMaxPopulation) {
     area *= kChildScaleFactor;
     food -= 0.5;
     age = 0;
@@ -139,5 +139,5 @@ void Critter::UpdateInternal(float dt) {
   }
   force += -kDrag * velocity;
   orientation_speed *= 0.99;
-  orientation += orientation_speed * dt;
+  orientation += parity * orientation_speed * dt;
 }

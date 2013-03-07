@@ -67,7 +67,6 @@ private:
   void SteerGroup(std::list<Critter *> &group, ofVec2f target);
   void UpdateGroup(std::list<Critter *> &group, Statistics &statistics, ofVec2f target, bool move, bool player);
   void UpdateFood(std::list<Food *> &group);
-  void Launch(std::list<Critter *> &group);
   void Wrap(ofVec2f &position);
   
 private:
