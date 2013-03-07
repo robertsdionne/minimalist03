@@ -14,7 +14,6 @@
 
 #include "gameobject.h"
 #include "ofMain.h"
-#include "virus.h"
 
 class Critter : public GameObject {
 public:
@@ -34,7 +33,7 @@ public:
   
   virtual void DrawInternal() const;
   
-  virtual void MaybeReproduce(std::list<Critter *> &group, std::list<Virus *> &virii);
+  virtual void MaybeReproduce(std::list<Critter *> &group);
 
   void Update(float dt);
   
@@ -47,8 +46,6 @@ public:
   float parity;
   float food;
   float age;
-  float infection;
-  float immunity;
   float orientation;
   float orientation_speed;
   
@@ -58,7 +55,6 @@ public:
   static constexpr float kChildScaleFactor = 0.8;
   static constexpr float kDrag = 0.9;
   static constexpr float kGrowthRate = 0.05;
-  static constexpr float kImmunityGrowthRate = 0.001;
   static const ofColor kInteriorCellColor;
   static constexpr float kLineWidthScaleFactor = 0.004;
   static constexpr float kMaxComponentOfVelocity = 10.0;

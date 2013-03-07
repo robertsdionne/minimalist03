@@ -1,7 +1,6 @@
 #include "critter.h"
 #include "critters.h"
 #include "food.h"
-#include "virus.h"
 
 constexpr unsigned int Critters::kNumCritters;
 
@@ -18,9 +17,6 @@ void Critters::setup() {
   for (unsigned int i = 0; i < kNumFood; ++i) {
     food.push_back(new Food());
   }
-  for (unsigned int i = 0; i < kNumVirii; ++i) {
-    virii.push_back(new Virus());
-  }
   debug = false;
 }
 
@@ -32,15 +28,11 @@ void Critters::update() {
   enemy_target = ofVec2f(radius * cos(enemy_target_angle), radius * sin(enemy_target_angle)) + enemy_center_of_mass;
   Wrap(enemy_target);
   UpdateFood(food);
-  UpdateVirii(virii);
   UpdateGroup(enemy_critters, enemy_statistics, enemy_target, enemy_statistics.overlap.mean < kOverlap, false);
-  CollideVirii(critters, virii);
-  CollideVirii(enemy_critters, virii);
   CollideFood(critters, food);
   CollideFood(enemy_critters, food);
   Collide(critters, enemy_critters);
   RemoveDeadFood(food);
-  RemoveDeadVirii(virii);
   RemoveDeadIndividuals(critters);
   RemoveDeadIndividuals(enemy_critters);
   if (keys['`'] && !previous_keys['`']) {
@@ -62,19 +54,13 @@ void Critters::UpdateGroup(std::list<Critter *> &group, Statistics &statistics, 
     if (individual->food >= 0.0001) {
       individual->food -= 0.0001;
     }
-    individual->MaybeReproduce(group, virii);
+    individual->MaybeReproduce(group);
   }
 }
 
 void Critters::UpdateFood(std::list<Food *> &group) {
   for (auto mote : group) {
     mote->Update(1.0 / ofGetFrameRate());
-  }
-}
-
-void Critters::UpdateVirii(std::list<Virus *> &group) {
-  for (auto virus : group) {
-    virus->Update(1.0 / ofGetFrameRate());
   }
 }
 
@@ -159,13 +145,6 @@ void Critters::Collide(std::list<Critter *> &group, Statistics &statistics) {
         individual1->food += food_diffusion_amount;
       }
     });
-    std::for_each(individual0->connected.begin(), individual0->connected.end(), [&] (Critter *const individual1) {
-      if (ofRandomuf() < Virus::kInfectionRate * individual1->age * individual1->age * individual1->age - individual1->immunity
-          && individual0->infection >= 2) {
-        individual0->infection -= virus_diffusion_amount;
-        individual1->infection += virus_diffusion_amount;
-      }
-    });
     statistics.food.total += individual0->food;
   });
   statistics.overlap.mean = statistics.overlap.total / group.size();
@@ -215,25 +194,6 @@ void Critters::CollideFood(std::list<Critter *> &group, std::list<Food *> &food)
   });
 }
 
-void Critters::CollideVirii(std::list<Critter *> &group, std::list<Virus *> &virii) {
-  std::for_each(group.begin(), group.end(), [&] (Critter *const individual) {
-    std::for_each(virii.begin(), virii.end(), [&] (Virus *const virus) {
-      const ofVec2f r = virus->position - individual->position;
-      const float actual_distance = r.length();
-      const float colliding_distance = individual->radius() + virus->radius();
-      if (actual_distance < colliding_distance) {
-        if (ofRandomuf() < Virus::kInfectionRate * individual->age * individual->age * individual->age - individual->immunity) {
-          individual->infection += virus->area / Virus::kAreaToVirus;
-          virus->area = 0;
-        }
-        if (ofRandomuf() < Virus::kInfectionRate * individual->immunity) {
-          virus->area = 0;
-        }
-      }
-    });
-  });
-}
-
 void Critters::RemoveDeadIndividuals(std::list<Critter *> &group) {
   std::for_each(group.begin(), group.end(), [] (Critter *const individual) {
     std::list<Critter *> new_neighbors;
@@ -273,21 +233,9 @@ void Critters::RemoveDeadFood(std::list<Food *> &group) {
   });
 }
 
-void Critters::RemoveDeadVirii(std::list<Virus *> &group) {
-  group.remove_if([] (const Virus *const individual) -> bool {
-    if (individual->area <= 0) {
-      delete individual;
-      return true;
-    } else {
-      return false;
-    }
-  });
-}
-
 void Critters::draw() {
   ofBackground(0.0, 0.0, 0.0);
   DrawGroup(food);
-  DrawGroup(virii);
   DrawGroup(critters);
   DrawGroup(enemy_critters);
   if (debug) {
@@ -308,12 +256,6 @@ void Critters::DrawGroup(std::list<Critter *> &group) const {
 void Critters::DrawGroup(std::list<Food *> &group) const {
   for (auto mote : group) {
     mote->Draw();
-  }
-}
-
-void Critters::DrawGroup(std::list<Virus *> &group) const {
-  for (auto virus : group) {
-    virus->Draw();
   }
 }
 

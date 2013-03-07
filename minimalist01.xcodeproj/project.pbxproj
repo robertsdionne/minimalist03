@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		465EB56C16DE4D7C00A68004 /* virus.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 465EB56A16DE4D7C00A68004 /* virus.cpp */; };
 		4688C4E816CB278F000EFA6E /* critter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4688C4E616CB278F000EFA6E /* critter.cpp */; };
 		46DA424D16DDA3D700123468 /* gameobject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 46DA424B16DDA3D700123468 /* gameobject.cpp */; };
 		46DA425216DDD69300123468 /* food.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 46DA425016DDD69300123468 /* food.cpp */; };
@@ -64,8 +63,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		465EB56A16DE4D7C00A68004 /* virus.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = virus.cpp; sourceTree = "<group>"; };
-		465EB56B16DE4D7C00A68004 /* virus.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = virus.h; sourceTree = "<group>"; };
 		4688C4E616CB278F000EFA6E /* critter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = critter.cpp; sourceTree = "<group>"; };
 		4688C4E716CB278F000EFA6E /* critter.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; path = critter.h; sourceTree = "<group>"; };
 		46DA424B16DDA3D700123468 /* gameobject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = gameobject.cpp; sourceTree = "<group>"; };
@@ -206,8 +203,6 @@
 				46DA424B16DDA3D700123468 /* gameobject.cpp */,
 				46DA424C16DDA3D700123468 /* gameobject.h */,
 				E4B69E1D0A3A1BDC003C02F2 /* main.cpp */,
-				465EB56A16DE4D7C00A68004 /* virus.cpp */,
-				465EB56B16DE4D7C00A68004 /* virus.h */,
 			);
 			path = src;
 			sourceTree = SOURCE_ROOT;
@@ -313,7 +308,6 @@
 				4688C4E816CB278F000EFA6E /* critter.cpp in Sources */,
 				46DA424D16DDA3D700123468 /* gameobject.cpp in Sources */,
 				46DA425216DDD69300123468 /* food.cpp in Sources */,
-				465EB56C16DE4D7C00A68004 /* virus.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
