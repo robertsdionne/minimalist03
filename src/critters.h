@@ -72,8 +72,9 @@ private:
   
 private:
   static constexpr unsigned int kNumFood = 100;
-  static constexpr unsigned int kNumCritters = 50;
+  static constexpr unsigned int kNumCritters = 2;
   static constexpr float kOverlap = 0.5;
+  static constexpr float kStartCoordinate = 300.0;
   
   std::list<Food *> food;
   std::list<Critter *> critters;

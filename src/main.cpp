@@ -2,8 +2,8 @@
 #include "ofAppGlutWindow.h"
 #include "ofMain.h"
 
-constexpr unsigned int kWidth = 1920;
-constexpr unsigned int kHeight = 1200;
+constexpr unsigned int kWidth = 1440;
+constexpr unsigned int kHeight = 900;
 
 int main(const int argument_count, const char **arguments) {
   ofAppGlutWindow window;

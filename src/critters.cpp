@@ -7,12 +7,13 @@ constexpr unsigned int Critters::kNumCritters;
 void Critters::setup() {
   ofSetFrameRate(60.0);
   ofEnableSmoothing();
-  mouse_position = ofVec2f(ofGetWidth() / 2, ofGetHeight() / 2);
+  mouse_position = ofVec2f(kStartCoordinate, kStartCoordinate);
   reproduce_type = 0;
   enemy_target_angle = 0;
   for (unsigned int i = 0; i < kNumCritters; ++i) {
-    CreateShape(critters, true, ofVec2f(ofRandomWidth(), ofRandomHeight()));
-    CreateShape(enemy_critters, false, ofVec2f(ofRandomWidth(), ofRandomHeight()));
+    CreateShape(critters, true, ofVec2f(kStartCoordinate, kStartCoordinate) + ofVec2f(ofRandomf(), ofRandomf()));
+    CreateShape(enemy_critters, false, ofVec2f(ofGetWidth() - kStartCoordinate, ofGetHeight() - kStartCoordinate)
+                + ofVec2f(ofRandomf(), ofRandomf()));
   }
   for (unsigned int i = 0; i < kNumFood; ++i) {
     food.push_back(new Food());

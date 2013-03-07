@@ -27,7 +27,8 @@ constexpr float Critter::kLineWidthScaleFactor;
 constexpr float Critter::kMaxComponentOfVelocity;
 
 Critter::Critter(bool player, float food, float mass, float area, ofVec2f position, ofVec2f velocity)
-: GameObject(mass, area, position, velocity), player(player), neighbors(), food(food), age(0), parity(ofRandomuf() < 0.5 ? -1.0 : 1.0), orientation(0), orientation_speed(0) {}
+: GameObject(mass, area, position, velocity), player(player), neighbors(), food(food), age(0),
+  parity(ofRandomuf() < 0.5 ? -1.0 : 1.0), orientation(0), orientation_speed(0) {}
 
 bool Critter::attacker() const {
   return radius() > kWallSize && parity > 0;
