@@ -13,14 +13,18 @@
 
 class Food : public GameObject {
 public:
+  static constexpr float kArea = M_PI * 70.0;
   static constexpr float kAreaToFood = 10.0;
-  static constexpr float kImpulse = 0.5;
+  static constexpr float kImpulse = 8.0;
+  static constexpr float kLineWidthScaleFactor = 0.004;
   
   Food();
   
   virtual ~Food() {}
   
   virtual void Draw() const;
+  
+  virtual void DrawInternal() const;
   
   void Update(float dt);
   

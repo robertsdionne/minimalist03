@@ -12,10 +12,32 @@ Food::Food()
 : GameObject(1.0, kArea, ofVec2f(ofRandomWidth(), ofRandomHeight())) {}
 
 void Food::Draw() const {
+  ofPushMatrix();
+  ofTranslate(position);
   ofPushStyle();
-  ofSetColor(ofColor::yellow);
-  ofCircle(position, radius());
+  ofEnableAlphaBlending();
+  ofColor interior = ofColor::white;
+  ofSetColor(interior, 128);
+  ofFill();
+  ofSetLineWidth(0);
+  DrawInternal();
+  ofDisableAlphaBlending();
+  ofColor membrane = ofColor::white;
+  ofSetColor(membrane / (21.0 / radius()));
+  ofNoFill();
+  ofSetLineWidth(area * kLineWidthScaleFactor);
+  DrawInternal();
   ofPopStyle();
+  ofPopMatrix();
+}
+
+void Food::DrawInternal() const {
+  const float resolution = 4 * 10;
+  ofBeginShape();
+  for (unsigned int i = 0; i < resolution + 1; ++i) {
+    ofVertex(radius() * cos(i * 2.0 *  M_PI / resolution), radius() * sin(i * 2.0 * M_PI / resolution));
+  }
+  ofEndShape();
 }
 
 void Food::Update(float dt) {
