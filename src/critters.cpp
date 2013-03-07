@@ -20,6 +20,23 @@ void Critters::setup() {
     food.push_back(new Food());
   }
   debug = false;
+  small_plops.loadSound("../../plops_small.wav");
+  small_plops.setMultiPlay(true);
+  plops1.loadSound("../../plops.wav");
+  plops1.setMultiPlay(true);
+  plops2.loadSound("../../plops2.wav");
+  plops2.setMultiPlay(true);
+  ratchet1.loadSound("../../ratchet1.mp3");
+  ratchet1.setMultiPlay(true);
+  ratchet2.loadSound("../../ratchet3.mp3");
+  ratchet2.setMultiPlay(true);
+  eat.loadSound("../../eat.wav");
+  eat.setMultiPlay(true);
+  last_move_time = last_enemy_move_time = ofGetElapsedTimef();
+  move_sound_delay = kMoveSoundDelay;
+  attack_sound_delay = kAttackSoundDelay;
+  overlap_zero = false;
+  enemy_overlap_zero = false;
 }
 
 void Critters::update() {
@@ -37,7 +54,7 @@ void Critters::update() {
       nearest_food = food->position;
     }
   }
-  if (enemy_statistics.attackers.total > 1.5 * statistics.attackers.total) {
+  if (enemy_statistics.attackers.total > 1.1 * statistics.attackers.total) {
     enemy_target = FindCenterOfMass(critters);
   } else {
     float t = 1.0 - ofClamp(enemy_statistics.food.mean / 10.0, 0.0, 1.0);
@@ -58,9 +75,38 @@ void Critters::update() {
   previous_keys = keys;
 }
 
+float Critters::FindAverageSpeed(std::list<Critter *> &group) {
+  float total = 0.0;
+  for (auto critter : group) {
+    total += critter->velocity.length();
+  }
+  return total / group.size();
+}
+
 void Critters::UpdateGroup(std::list<Critter *> &group, Statistics &statistics, ofVec2f target, bool move, bool player) {
   if (move) {
     SteerGroup(group, target);
+    if (player ? !overlap_zero : !enemy_overlap_zero) {
+      player ? overlap_zero : enemy_overlap_zero = true;
+    }
+    const float prev_move_time = player ? last_move_time : last_enemy_move_time;
+    if (player ? overlap_zero : enemy_overlap_zero && ofGetElapsedTimef() - prev_move_time > kMoveSoundDelay) {
+      const float choice = ofRandomuf();
+      if (choice < 0.33) {
+        plops1.play();
+      } else if (choice < 0.66) {
+        plops2.play();
+      } else {
+        small_plops.play();
+      }
+      if (player) {
+        last_move_time = ofGetElapsedTimef();
+      } else {
+        last_enemy_move_time = ofGetElapsedTimef();
+      }
+      move_sound_delay = kMoveSoundDelay + ofRandomuf();
+      player ? overlap_zero : enemy_overlap_zero = false;
+    }
   }
   Collide(group, statistics);
   for (auto individual : group) {
@@ -158,6 +204,14 @@ void Critters::Collide(std::list<Critter *> &critters, std::list<Critter *> &ene
         critter->force -= 10.0 * r.normalized() * sqrt(overlap);
         enemy_critter->force += 10.0 * r.normalized() * sqrt(overlap);
         if (critter->attacker() && ofRandomuf() < Critter::kAttackChance) {
+          if (abs(critter->orientation_speed) <= 0.1) {
+            const float choice = ofRandomuf();
+            if (choice < 0.5) {
+              ratchet1.play();
+            } else {
+              ratchet2.play();
+            }
+          }
           critter->orientation_speed += 5.0 * ofRandomuf();
           enemy_critter->area /= 2.0;
           if (enemy_critter->area < 50.0) {
@@ -165,6 +219,14 @@ void Critters::Collide(std::list<Critter *> &critters, std::list<Critter *> &ene
           }
         }
         if (enemy_critter->attacker() && ofRandomuf() < Critter::kAttackChance) {
+          if (abs(enemy_critter->orientation_speed) <= 0.1) {
+            const float choice = ofRandomuf();
+            if (choice < 0.5) {
+              ratchet1.play();
+            } else {
+              ratchet2.play();
+            }
+          }
           enemy_critter->orientation_speed += 5.0 * ofRandomuf();
           critter->area /= 2.0;
           if (critter->area < 50.0) {
@@ -185,6 +247,7 @@ void Critters::CollideFood(std::list<Critter *> &group, std::list<Food *> &food)
       if (actual_distance < colliding_distance) {
         individual->food += food->area / Food::kAreaToFood;
         food->area = 0;
+        eat.play();
       }
     });
   });

@@ -60,6 +60,7 @@ private:
   void Collide(std::list<Critter *> &critters, std::list<Critter *> &enemy_critters);
   void CollideFood(std::list<Critter *> &group, std::list<Food *> &food);
   ofVec2f FindCenterOfMass(std::list<Critter *> &group);
+  float FindAverageSpeed(std::list<Critter *> &group);
   void CreateShape(std::list<Critter *> &group, bool player, ofVec2f at);
   void DrawGroup(std::list<Critter *> &group) const;
   void DrawGroup(std::list<Food *> &group) const;
@@ -75,6 +76,9 @@ private:
   static constexpr unsigned int kNumCritters = 2;
   static constexpr float kOverlap = 0.5;
   static constexpr float kStartCoordinate = 300.0;
+  static constexpr float kAttackSoundDelay = 2.0;
+  static constexpr float kMoveSoundDelay = 2.0;
+  static constexpr float kSoundSpeed = 150.0;
   
   std::list<Food *> food;
   std::list<Critter *> critters;
@@ -93,6 +97,14 @@ private:
   std::map<int, bool> keys;
   std::map<int, bool> previous_keys;
   
+  bool overlap_zero;
+  bool enemy_overlap_zero;
+  float last_move_time;
+  float last_enemy_move_time;
+  float move_sound_delay;
+  float attack_sound_delay;
+  
+  ofSoundPlayer eat;
   ofSoundPlayer small_plops;
   ofSoundPlayer plops1;
   ofSoundPlayer plops2;

@@ -70,7 +70,7 @@ void Critter::DrawInternal() const {
   const float resolution = 4 * 10;
   ofBeginShape();
   for (unsigned int i = 0; i < resolution + 1; ++i) {
-    if (attacker()) {
+    if (radius() > kWallSize) {
       if (i % 4 == 0) {
         const float attacker_radius = kWallSize + 2.0 + sqrt(radius() - kWallSize);
         ofVertex(attacker_radius * cos(i * 2.0 *  M_PI / resolution), attacker_radius * sin(i * 2.0 * M_PI / resolution));
