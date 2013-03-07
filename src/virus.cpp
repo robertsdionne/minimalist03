@@ -26,9 +26,9 @@ void Virus::Draw() const {
 
 void Virus::Update(float dt) {
   Accelerate(dt);
-  Inertia();
-  position.x += kImpulse * ofRandomf();
-  position.y += kImpulse * ofRandomf();
+  Inertia(dt);
+  velocity.x += kImpulse * ofRandomf();
+  velocity.y += kImpulse * ofRandomf();
   Wrap();
   if (ofRandomuf() < kMortality) {
     area = 0;
@@ -38,18 +38,14 @@ void Virus::Update(float dt) {
 void Virus::Wrap() {
   if (position.x < 0) {
     position.x += ofGetWidth();
-    previous_position.x += ofGetWidth();
   }
   if (position.x >= ofGetWidth()) {
     position.x -= ofGetWidth();
-    previous_position.x -= ofGetWidth();
   }
   if (position.y < 0) {
     position.y += ofGetHeight();
-    previous_position.y += ofGetHeight();
   }
   if (position.y >= ofGetHeight()) {
     position.y -= ofGetHeight();
-    previous_position.y -= ofGetHeight();
   }
 }

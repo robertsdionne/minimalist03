@@ -26,18 +26,16 @@ public:
   
   float radius() const;
   
-  ofVec2f velocity() const;
-  
   void Accelerate(float dt);
   
   virtual void Draw() const = 0;
   
-  void Inertia();
+  void Inertia(float dt);
   
   float mass;
   float area;
   ofVec2f position;
-  ofVec2f previous_position;
+  ofVec2f velocity;
   ofVec2f force;
 };
 

@@ -105,7 +105,7 @@ void Critters::Launch(std::list<Critter *> &group) {
   if (closest) {
     const float strength = 100.0 * (mouse_position - center_of_mass).length();
     ofVec2f desired_velocity = strength * (mouse_position - closest->position).normalized();
-    closest->force += desired_velocity - closest->velocity();
+    closest->force += desired_velocity - closest->velocity;
   }
 }
 
@@ -139,8 +139,8 @@ void Critters::Collide(std::list<Critter *> &group, Statistics &statistics) {
           statistics.overlap.min = std::min(statistics.overlap.min, overlap);
           statistics.overlap.max = std::max(statistics.overlap.max, overlap);
           statistics.overlap.total += overlap / 2;
-          individual0->force -= 10.0 * r.normalized() * sqrt(overlap);
-          individual1->force += 10.0 * r.normalized() * sqrt(overlap);
+          individual0->force -= 5.0 * r.normalized() * overlap;
+          individual1->force += 5.0 * r.normalized() * overlap;
         }
       }
     });
@@ -365,8 +365,10 @@ void Critters::mousePressed(int x, int y, int button) {
 void Critters::SteerGroup(std::list<Critter *> &group, ofVec2f target) {
   std::for_each(group.begin(), group.end(), [target] (Critter *const individual) {
     ofVec2f desired_velocity = target - individual->position;
-    desired_velocity.scale(100.0);
-    individual->force += (desired_velocity - individual->velocity());
+    if (desired_velocity.length() < 1000.0) {
+      desired_velocity.scale(1000.0);
+    }
+    individual->force += (desired_velocity - individual->velocity);
   });
 }
 

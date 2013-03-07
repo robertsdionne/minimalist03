@@ -134,7 +134,7 @@ void Critter::MaybeReproduce(std::list<Critter *> &group, std::list<Virus *> &vi
     age = 0;
     infection /= 2.0;
     const ofVec2f epsilon = ofVec2f(0.1, 0.1);
-    Critter *critter = new Critter(player, 0, mass, area, position + epsilon, velocity());
+    Critter *critter = new Critter(player, 0, mass, area, position + epsilon, velocity);
     critter->infection = infection;
     group.push_back(critter);
   }
@@ -147,7 +147,7 @@ void Critter::MaybeReproduce(std::list<Critter *> &group, std::list<Virus *> &vi
     for (int i = 0; i < infection; ++i) {
       Virus *virus = new Virus();
       virus->position = position;
-      virus->previous_position = previous_position;
+      virus->velocity = velocity;
       virii.push_back(virus);
     }
   }
@@ -156,7 +156,7 @@ void Critter::MaybeReproduce(std::list<Critter *> &group, std::list<Virus *> &vi
 void Critter::Update(float dt) {
   UpdateInternal(dt);
   Accelerate(dt);
-  Inertia();
+  Inertia(dt);
 }
 
 void Critter::UpdateInternal(float dt) {
@@ -186,7 +186,7 @@ void Critter::UpdateInternal(float dt) {
   if (infection >= 1.0 && ofRandomuf() < Virus::kGrowthRate * age * age * age - immunity) {
     infection += 1;
   }
-  force += -kDrag * velocity();
+  force += -kDrag * velocity;
   orientation_speed *= 0.99;
   orientation += orientation_speed * dt;
 }
